@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>seasonal-theme · live demo</title>
+<meta name="description" content="Live demo of the seasonal-theme Claude Code skill: falling weather effect, themed announcement bar and compliant offer card, all self-expiring.">
+<style>
+  :root {
+    --ink: #0f172a; --muted: #475569; --line: #e2e8f0; --bg: #f8fafc; --card: #fff;
+    --brand: #2563eb; --brand-ink: #fff;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--ink); background: var(--bg); line-height: 1.5; }
+  a { color: inherit; }
+
+  /* ---------- announcement bar (normal branch) ---------- */
+  .bar { position: relative; z-index: 40; display: flex; align-items: center; justify-content: center; gap: .75rem; flex-wrap: wrap;
+         padding: .6rem 1rem; font-size: .9rem; background: #111827; color: #e5e7eb; text-align: center; }
+  .bar a { font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+  .bar .badge { font-size: .7rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; padding: .15rem .5rem; border-radius: 999px; color: #111; }
+  .bar .head { font-weight: 700; }
+
+  /* ---------- site chrome ---------- */
+  header.nav { position: sticky; top: 0; z-index: 40; background: rgba(255,255,255,.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 1.25rem; }
+  .nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .logo { font-weight: 800; font-size: 1.15rem; letter-spacing: -.02em; display: flex; align-items: center; gap: .5rem; }
+  .logo i { width: 26px; height: 26px; border-radius: 7px; background: linear-gradient(135deg, #2563eb, #7c3aed); display: inline-block; }
+  .nav nav { display: flex; gap: 1.5rem; font-size: .92rem; color: var(--muted); }
+  .nav nav a { text-decoration: none; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: .4rem; padding: .7rem 1.15rem; border-radius: 10px;
+         background: var(--brand); color: var(--brand-ink); font-weight: 600; text-decoration: none; border: 0; font-size: .95rem; }
+  .btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+  @media (max-width: 720px) { .nav nav { display: none; } }
+
+  .hero { padding: 4.5rem 0 3.5rem; }
+  .hero .wrap { display: grid; grid-template-columns: 1.15fr .85fr; gap: 3rem; align-items: center; }
+  .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--brand); }
+  h1 { font-size: clamp(2rem, 4.6vw, 3.4rem); line-height: 1.05; letter-spacing: -.035em; margin: .6rem 0 1rem; }
+  .lead { font-size: 1.1rem; color: var(--muted); max-width: 34rem; }
+  .ctas { display: flex; gap: .75rem; margin-top: 1.75rem; flex-wrap: wrap; }
+  .hero-art { aspect-ratio: 4/3; border-radius: 20px; background:
+      radial-gradient(120% 90% at 20% 10%, #dbeafe 0, transparent 60%),
+      radial-gradient(90% 90% at 90% 90%, #ede9fe 0, transparent 55%), #fff;
+      border: 1px solid var(--line); box-shadow: 0 30px 60px -30px rgba(15,23,42,.25); padding: 1.5rem; display: grid; gap: .8rem; align-content: start; }
+  .hero-art .row { height: 14px; border-radius: 6px; background: #e2e8f0; }
+  .hero-art .row.s { width: 60%; } .hero-art .row.m { width: 80%; }
+  .hero-art .tile { height: 90px; border-radius: 12px; background: #f1f5f9; border: 1px solid var(--line); }
+  @media (max-width: 860px) { .hero .wrap { grid-template-columns: 1fr; } .hero-art { display: none; } .hero { padding: 2.5rem 0 2rem; } }
+
+  section.offers { padding: 3rem 0 4rem; border-top: 1px solid var(--line); background: #fff; }
+  h2 { font-size: 1.7rem; letter-spacing: -.02em; margin: 0 0 .4rem; }
+  .sub { color: var(--muted); margin: 0 0 2rem; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+  @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 1.4rem; display: flex; flex-direction: column; gap: .6rem; }
+  .card h3 { margin: 0; font-size: 1.1rem; }
+  .price { font-size: 2rem; font-weight: 800; letter-spacing: -.03em; }
+  .price small { font-size: .95rem; color: var(--muted); font-weight: 500; }
+  .card ul { margin: 0; padding-left: 1.1rem; color: var(--muted); font-size: .92rem; }
+  .card .btn { margin-top: auto; }
+
+  /* ---------- seasonal offer card ---------- */
+  .szn-card { border-radius: 16px; overflow: hidden; border: 1px solid var(--line); background: #fff; display: flex; flex-direction: column;
+              box-shadow: 0 20px 40px -24px rgba(15,23,42,.35); }
+  .szn-card .top { padding: 1.25rem 1.4rem; color: #fff; }
+  .szn-card .top .kicker { font-size: .72rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+  .szn-card .top .headline { font-size: 1.6rem; font-weight: 800; letter-spacing: -.02em; line-height: 1.15; margin-top: .25rem; }
+  .szn-card .top .subline { opacity: .85; font-size: .92rem; margin-top: .25rem; }
+  .szn-card .body { padding: 1.1rem 1.4rem 1.4rem; display: flex; flex-direction: column; gap: .7rem; flex: 1; }
+  .szn-card .terms-label { font-size: .72rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  .szn-card ul { margin: 0; padding-left: 1.1rem; font-size: .88rem; color: #334155; }
+  .szn-card .btn { margin-top: auto; }
+
+  footer { padding: 2rem 0; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--line); }
+
+  /* ---------- demo control panel (not part of the skill) ---------- */
+  .panel { position: fixed; right: 16px; bottom: 16px; z-index: 60; background: #0f172a; color: #e2e8f0; border-radius: 14px; padding: .9rem 1rem;
+           font-size: .82rem; box-shadow: 0 20px 50px -10px rgba(0,0,0,.45); display: grid; gap: .55rem; width: min(300px, calc(100vw - 32px)); }
+  .panel b { font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: #94a3b8; }
+  .panel label { display: grid; grid-template-columns: 80px 1fr; align-items: center; gap: .5rem; }
+  .panel select { background: #1e293b; color: #fff; border: 1px solid #334155; border-radius: 8px; padding: .35rem .4rem; font: inherit; }
+  .panel .chk { grid-template-columns: auto 1fr; }
+  .panel .status { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .75rem; color: #a5b4fc; }
+  .panel a { color: #93c5fd; }
+  .shot .panel { display: none; }
+</style>
+</head>
+<body>
+
+<div class="bar" id="bar">
+  <span>Free estimates all month.</span>
+  <a href="#offers">See offers →</a>
+</div>
+
+<header class="nav">
+  <div class="wrap">
+    <div class="logo"><i></i>Example&nbsp;Co.</div>
+    <nav><a href="#">Services</a><a href="#offers">Offers</a><a href="#">Reviews</a><a href="#">Contact</a></nav>
+    <a class="btn" href="#offers">Get a quote</a>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <div class="eyebrow">Your website, any season</div>
+        <h1>A normal website, with a seasonal theme that expires on its own.</h1>
+        <p class="lead">This page is a stand-in for any marketing site. Everything seasonal on it — the falling particles, the announcement bar and the offer card — is switched on by one date check in the browser and disappears at the cutoff without a redeploy.</p>
+        <div class="ctas"><a class="btn" href="#offers">View offers</a><a class="btn ghost" href="../">Read the docs</a></div>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <div class="row m"></div><div class="row s"></div>
+        <div class="tile"></div><div class="tile"></div>
+        <div class="row"></div><div class="row s"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="offers" id="offers">
+    <div class="wrap">
+      <h2>Current offers</h2>
+      <p class="sub">The seasonal card appears first while the theme is live, and is gone after the end date.</p>
+      <div class="grid" id="offer-grid">
+        <div class="card">
+          <h3>Standard plan</h3>
+          <div class="price">$49<small>/month</small></div>
+          <ul><li>Monthly service visit</li><li>Cancel any time</li></ul>
+          <a class="btn ghost" href="#">Choose plan</a>
+        </div>
+        <div class="card">
+          <h3>Premium plan</h3>
+          <div class="price">$89<small>/month</small></div>
+          <ul><li>Bi-weekly visits</li><li>Priority scheduling</li></ul>
+          <a class="btn ghost" href="#">Choose plan</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer><div class="wrap">Example Co. · Demo site for the <a href="../">seasonal-theme</a> Claude Code skill.</div></footer>
+
+<div class="panel" id="panel">
+  <b>Demo controls</b>
+  <label>Season <select id="c-season"></select></label>
+  <label>Density <select id="c-density"><option>low</option><option selected>normal</option><option>high</option></select></label>
+  <label class="chk"><input type="checkbox" id="c-expired"> Fake a clock past the end date</label>
+  <div class="status" id="c-status"></div>
+  <a href="../">← Back to the docs</a>
+</div>
+
+<script>
+(() => {
+  // ===== Season catalog — values copied from SKILL.md =========================
+  // Tailwind accents from the catalog are resolved to their hex values here
+  // because this static demo does not load Tailwind.
+  var CATALOG = {
+    "halloween":   { p: ["🎃","🦇","👻","🍂","🍁","🕸️"], g: ["#1a0b2e","#38185c","#1a0b2e"], text: "#fdba74", badge: "#f97316", end: [10, 1],
+                     promo: "Spooky-season special: $1 first month", sub: "Book before Halloween night.", terms: ["$1 for month one, then $49/month", "12-month commitment", "New customers only", "Ends Nov 1"] },
+    "christmas":   { p: ["❄️","🎄","⛄","🎁","✨"], g: ["#0b1f3a","#14532d","#0b1f3a"], text: "#fca5a5", badge: "#ef4444", end: [11, 26],
+                     promo: "Holiday deal: first month $1", sub: "Our gift to new customers.", terms: ["$1 for month one, then $49/month", "12-month commitment", "New customers only", "Ends Dec 26"] },
+    "new-year":    { p: ["✨","🎆","⭐","🥂"], g: ["#111111","#3b2f0b","#111111"], text: "#fde047", badge: "#facc15", end: [0, 2],
+                     promo: "New year, new plan: 20% off", sub: "Start the year on schedule.", terms: ["20% off the first 3 months", "Monthly plans only", "Ends Jan 2"] },
+    "valentines":  { p: ["❤️","💘","💝","🌹"], g: ["#4c0519","#881337","#4c0519"], text: "#f9a8d4", badge: "#ec4899", end: [1, 15],
+                     promo: "Share the love: refer a friend, both save $25", sub: "Because good service is better together.", terms: ["$25 credit each, applied to the next invoice", "Friend must start a plan", "Ends Feb 15"] },
+    "st-patricks": { p: ["☘️","🍀","✨"], g: ["#052e16","#166534","#052e16"], text: "#86efac", badge: "#22c55e", end: [2, 18],
+                     promo: "Lucky deal: free first visit", sub: "No pot of gold required.", terms: ["First visit free with any plan", "6-month commitment", "Ends Mar 18"] },
+    "spring":      { p: ["🌸","🌷","🦋","🐝"], g: ["#1e3a5f","#2563eb","#1e3a5f"], text: "#fbcfe8", badge: "#f472b6", end: null,
+                     promo: "Spring refresh: 15% off", sub: "Fresh start for the season.", terms: ["15% off the first month", "New customers only", "Ends on the date you choose"] },
+    "summer":      { p: ["☀️","🌊","🍉","😎"], g: ["#0c4a6e","#0891b2","#0c4a6e"], text: "#fef08a", badge: "#facc15", end: null,
+                     promo: "Summer kickoff: $1 first month", sub: "Beat the rush.", terms: ["$1 for month one, then $49/month", "12-month commitment", "Ends on the date you choose"] },
+    "autumn":      { p: ["🍂","🍁","🌰"], g: ["#431407","#9a3412","#431407"], text: "#fde68a", badge: "#f59e0b", end: [10, 30],
+                     promo: "Fall savings: 2 months half off", sub: "Before the cold sets in.", terms: ["50% off months one and two", "12-month commitment", "Ends Nov 30"] },
+    "snow":        { p: ["❄️"], weatherOnly: true, end: null },
+    "rain":        { p: ["💧"], weatherOnly: true, end: null }
+  };
+  var DENSITY = { low: 10, normal: 20, high: 32 };
+
+  var qs = new URLSearchParams(location.search);
+  var season = CATALOG[qs.get("season")] ? qs.get("season") : "halloween";
+  var density = DENSITY[qs.get("density")] ? qs.get("density") : "normal";
+  var expired = qs.get("expired") === "1";
+  if (qs.get("shot") === "1") document.documentElement.classList.add("shot");
+
+  // Optional seeded RNG so the docs screenshots are reproducible.
+  var seed = parseInt(qs.get("seed") || "0", 10);
+  var rand = seed ? (function (a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; })(seed) : Math.random;
+
+  var cfg = CATALOG[season];
+
+  // ===== Date gate (rule 1) ===================================================
+  // The demo always ends at the season's next end date (or 30 days out for the
+  // "configurable" seasons), so it is live for whoever opens it. A real
+  // install hardcodes a literal Date.UTC(...) instead.
+  var now = new Date();
+  var ENDS_UTC;
+  if (cfg.end) {
+    var y = now.getUTCFullYear();
+    ENDS_UTC = Date.UTC(y, cfg.end[0], cfg.end[1], 5, 0, 0);
+    if (ENDS_UTC <= now.getTime()) ENDS_UTC = Date.UTC(y + 1, cfg.end[0], cfg.end[1], 5, 0, 0);
+  } else {
+    ENDS_UTC = now.getTime() + 30 * 864e5;
+  }
+  // "Fake a clock past the end date" — what the skill's verification step does.
+  var clock = expired ? ENDS_UTC + 60000 : Date.now();
+  var live = clock < ENDS_UTC;
+
+  // ===== Panel wiring (demo only) ============================================
+  var sel = document.getElementById("c-season");
+  Object.keys(CATALOG).forEach(function (k) { var o = document.createElement("option"); o.textContent = k; if (k === season) o.selected = true; sel.appendChild(o); });
+  document.getElementById("c-density").value = density;
+  document.getElementById("c-expired").checked = expired;
+  function go() {
+    var p = new URLSearchParams();
+    p.set("season", sel.value); p.set("density", document.getElementById("c-density").value);
+    if (document.getElementById("c-expired").checked) p.set("expired", "1");
+    location.search = p.toString();
+  }
+  ["c-season", "c-density", "c-expired"].forEach(function (id) { document.getElementById(id).addEventListener("change", go); });
+  document.getElementById("c-status").textContent =
+    (live ? "LIVE" : "EXPIRED → renders nothing") + "\nends " + new Date(ENDS_UTC).toISOString().replace(".000", "");
+  document.getElementById("c-status").style.whiteSpace = "pre";
+
+  if (!live) return; // after the cutoff, the original bar/cards stay exactly as they were
+
+  // ===== Layer 2: announcement bar re-skin ===================================
+  if (!cfg.weatherOnly) {
+    var bar = document.getElementById("bar");
+    bar.style.background = "linear-gradient(90deg," + cfg.g.join(",") + ")";
+    bar.style.color = "#fff";
+    bar.innerHTML = "";
+    var badge = document.createElement("span"); badge.className = "badge"; badge.style.background = cfg.badge; badge.textContent = "Limited time";
+    var head = document.createElement("span"); head.className = "head"; head.style.color = cfg.text; head.textContent = cfg.promo;
+    var link = document.createElement("a"); link.href = "#offers"; link.textContent = "See terms →";
+    bar.append(badge, head, link);
+
+    // ===== Layer 3: offer card with terms beside the claim (rule 8) ==========
+    var card = document.createElement("div");
+    card.className = "szn-card";
+    card.innerHTML =
+      '<div class="top"><div class="kicker"></div><div class="headline"></div><div class="subline"></div></div>' +
+      '<div class="body"><div class="terms-label">Offer terms</div><ul></ul><a class="btn" href="#">Claim offer</a></div>';
+    card.querySelector(".top").style.background = "linear-gradient(135deg," + cfg.g.join(",") + ")";
+    card.querySelector(".kicker").style.color = cfg.text;
+    card.querySelector(".kicker").textContent = season.replace("-", " ") + " offer";
+    card.querySelector(".headline").textContent = cfg.promo;
+    card.querySelector(".subline").textContent = cfg.sub;
+    var ul = card.querySelector("ul");
+    cfg.terms.forEach(function (t) { var li = document.createElement("li"); li.textContent = t; ul.appendChild(li); });
+    card.querySelector(".btn").style.background = cfg.badge;
+    card.querySelector(".btn").style.color = "#111";
+    var grid = document.getElementById("offer-grid");
+    grid.insertBefore(card, grid.firstChild);
+  }
+
+  // ===== Layer 1: weather effect — the vanilla reference from SKILL.md ======
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  var EMOJI = cfg.p;
+  var DESKTOP = DENSITY[density];
+  var N = innerWidth < 640 ? Math.ceil(DESKTOP / 2) : DESKTOP;
+  var field = document.createElement("div");
+  field.setAttribute("aria-hidden", "true");
+  field.setAttribute("data-seasonal-weather", "");
+  field.style.cssText = "position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:30";
+  var css = document.createElement("style");
+  css.textContent = "@keyframes szn-fall{from{transform:translateY(-8vh)}to{transform:translateY(110vh)}}@keyframes szn-sway{0%,100%{transform:translateX(0) rotate(-16deg)}50%{transform:translateX(26px) rotate(16deg)}}@media print{[data-seasonal-weather]{display:none}}";
+  document.head.appendChild(css);
+  for (var i = 0; i < N; i++) {
+    var outer = document.createElement("span");
+    var inner = document.createElement("span");
+    var dur = 9 + rand() * 11, delay = -rand() * 20;
+    outer.style.cssText = "position:absolute;top:0;left:" + (rand() * 100) + "%;font-size:" + (13 + rand() * 15) + "px;opacity:" + (0.35 + rand() * 0.4) + ";will-change:transform;animation:szn-fall " + dur + "s linear " + delay + "s infinite";
+    inner.style.cssText = "display:inline-block;animation:szn-sway " + (3.5 + rand() * 4.5) + "s ease-in-out " + delay + "s infinite";
+    inner.textContent = EMOJI[i % EMOJI.length];
+    outer.appendChild(inner); field.appendChild(outer);
+  }
+  document.body.appendChild(field);
+})();
+</script>
+</body>
+</html>

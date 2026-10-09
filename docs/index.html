@@ -1,0 +1,575 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>seasonal-theme · Claude Code skill</title>
+<meta name="description" content="A Claude Code skill that installs self-expiring holiday and seasonal themes — falling weather effects, a themed announcement bar and a compliant offer card — on any React/Next.js or static website.">
+<meta property="og:title" content="seasonal-theme — self-expiring holiday themes for any site">
+<meta property="og:description" content="One command. Falling snow, pumpkins or hearts, a themed promo bar and an offer card — all gone for every visitor on the end date, no redeploy.">
+<meta property="og:image" content="assets/screenshots/hero-christmas.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #ffffff; --bg-2: #f6f7fb; --ink: #0b1020; --muted: #545d73; --line: #e4e7ef;
+    --card: #ffffff; --code-bg: #0d1222; --code-ink: #e6e9f2; --code-dim: #8b93a8;
+    --accent: #6d28d9; --accent-2: #db2777; --accent-soft: #f3e8ff; --ok: #16a34a; --warn: #b45309;
+    --shadow: 0 30px 60px -32px rgba(15, 23, 42, .35);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0a0d17; --bg-2: #0f1322; --ink: #eef1f8; --muted: #a0a8bd; --line: #222941;
+      --card: #121729; --code-bg: #070a14; --accent: #a78bfa; --accent-2: #f472b6; --accent-soft: #1d1638;
+      --shadow: 0 30px 60px -32px rgba(0, 0, 0, .8);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0a0d17; --bg-2: #0f1322; --ink: #eef1f8; --muted: #a0a8bd; --line: #222941;
+    --card: #121729; --code-bg: #070a14; --accent: #a78bfa; --accent-2: #f472b6; --accent-soft: #1d1638;
+    --shadow: 0 30px 60px -32px rgba(0, 0, 0, .8);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 76px; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
+  img { max-width: 100%; height: auto; display: block; }
+  a { color: var(--accent); }
+  code, pre, kbd { font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace; }
+  :not(pre) > code { font-size: .86em; background: var(--bg-2); border: 1px solid var(--line); padding: .1em .4em; border-radius: 6px; white-space: nowrap; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 16px; }
+  @media (min-width: 720px) { .wrap { padding: 0 28px; } }
+
+  /* nav */
+  .top { position: sticky; top: 0; z-index: 50; background: color-mix(in srgb, var(--bg) 85%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+  .top .wrap { display: flex; align-items: center; justify-content: space-between; height: 60px; gap: 1rem; }
+  .brand { font-weight: 800; letter-spacing: -.02em; text-decoration: none; color: var(--ink); display: flex; align-items: center; gap: .5rem; white-space: nowrap; }
+  .brand span.e { font-size: 1.25rem; }
+  .links { display: flex; gap: 1.25rem; font-size: .9rem; align-items: center; }
+  .links a { color: var(--muted); text-decoration: none; }
+  .links a:hover { color: var(--ink); }
+  .links .hide-sm, .links .hide-xs { display: none; }
+  @media (min-width: 560px) { .links .hide-xs { display: inline; } }
+  @media (min-width: 860px) { .links .hide-sm { display: inline; } }
+  .theme-btn { background: none; border: 1px solid var(--line); color: var(--ink); border-radius: 8px; width: 34px; height: 34px; cursor: pointer; font-size: 1rem; }
+
+  /* hero */
+  .hero { position: relative; overflow: hidden; padding: 64px 0 40px; background:
+      radial-gradient(60% 60% at 15% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 70%),
+      radial-gradient(50% 50% at 95% 10%, color-mix(in srgb, var(--accent-2) 14%, transparent), transparent 70%); }
+  .pill { display: inline-flex; gap: .5rem; align-items: center; font-size: .8rem; font-weight: 600; padding: .3rem .75rem; border-radius: 999px; background: var(--accent-soft); color: var(--accent); }
+  .hero h1 { font-size: clamp(2.2rem, 6vw, 4rem); line-height: 1.03; letter-spacing: -.04em; margin: 1rem 0 1rem; max-width: 15ch; }
+  .hero h1 em { font-style: normal; background: linear-gradient(90deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .hero p.lead { font-size: 1.15rem; color: var(--muted); max-width: 40rem; margin: 0 0 1.75rem; }
+  .cta { display: flex; flex-wrap: wrap; gap: .75rem; margin-bottom: 1.5rem; }
+  .btn { display: inline-flex; align-items: center; gap: .45rem; padding: .75rem 1.15rem; border-radius: 10px; font-weight: 600; font-size: .95rem; text-decoration: none; border: 1px solid transparent; }
+  .btn.primary { background: var(--ink); color: var(--bg); }
+  .btn.ghost { border-color: var(--line); color: var(--ink); background: var(--card); }
+  .hero-shot { margin-top: 2.5rem; border-radius: 14px; overflow: hidden; border: 1px solid var(--line); box-shadow: var(--shadow); background: var(--card); }
+  .chrome { display: flex; gap: 6px; padding: 10px 12px; border-bottom: 1px solid var(--line); background: var(--bg-2); align-items: center; }
+  .chrome i { width: 10px; height: 10px; border-radius: 50%; background: #e5484d; } .chrome i:nth-child(2) { background: #f5a623; } .chrome i:nth-child(3) { background: #30a46c; }
+  .chrome span { margin-left: 10px; font-size: .75rem; color: var(--muted); font-family: "JetBrains Mono", monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* copyable command */
+  .cmd { position: relative; display: flex; align-items: center; gap: .75rem; background: var(--code-bg); color: var(--code-ink); border-radius: 12px; padding: .85rem 1rem; font-size: .88rem; max-width: 100%; }
+  .cmd code { overflow-x: auto; white-space: pre; flex: 1; min-width: 0; scrollbar-width: thin; }
+  .cmd code { background: none; border: 0; padding: 0; color: inherit; font-size: inherit; border-radius: 0; }
+  .cmd .p { color: var(--code-dim); user-select: none; }
+  .copy { flex: none; background: #1d2338; color: #c9cfdf; border: 1px solid #2b3350; border-radius: 7px; font: 600 .72rem Inter, sans-serif; padding: .35rem .6rem; cursor: pointer; }
+  .copy.ok { color: #86efac; border-color: #166534; }
+
+  /* sections */
+  section.s { padding: 72px 0; border-top: 1px solid var(--line); }
+  section.alt { background: var(--bg-2); }
+  .kicker { font-size: .78rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
+  h2 { font-size: clamp(1.6rem, 3.4vw, 2.3rem); letter-spacing: -.03em; line-height: 1.15; margin: .4rem 0 .75rem; }
+  h3 { font-size: 1.1rem; letter-spacing: -.01em; margin: 0 0 .4rem; }
+  .intro { color: var(--muted); max-width: 46rem; margin: 0 0 2rem; font-size: 1.05rem; }
+
+  .grid3 { display: grid; gap: 1.25rem; grid-template-columns: 1fr; }
+  @media (min-width: 860px) { .grid3 { grid-template-columns: repeat(3, 1fr); } }
+  .grid2 { display: grid; gap: 1.25rem; grid-template-columns: 1fr; }
+  @media (min-width: 860px) { .grid2 { grid-template-columns: repeat(2, 1fr); } }
+  .grid2 > *, .grid3 > *, .timeline > * { min-width: 0; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 1.4rem; min-width: 0; }
+  .card p { color: var(--muted); margin: 0; font-size: .95rem; }
+  .card .ico { font-size: 1.6rem; margin-bottom: .5rem; }
+  .shot { border-radius: 12px; overflow: hidden; border: 1px solid var(--line); box-shadow: var(--shadow); background: var(--card); }
+  figure { margin: 0; }
+  figcaption { font-size: .85rem; color: var(--muted); margin-top: .6rem; }
+
+  /* steps */
+  .steps { counter-reset: step; display: grid; gap: 1rem; }
+  .step { display: grid; grid-template-columns: 40px 1fr; gap: 1rem; align-items: start; }
+  .step::before { counter-increment: step; content: counter(step); width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; font-weight: 800; background: var(--ink); color: var(--bg); }
+  .step > div { min-width: 0; }
+  .step p { margin: .1rem 0 .6rem; color: var(--muted); }
+
+  /* tabs */
+  .tabs { display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: .75rem; }
+  .tab { border: 1px solid var(--line); background: var(--card); color: var(--muted); border-radius: 999px; padding: .4rem .9rem; font: 600 .85rem Inter, sans-serif; cursor: pointer; }
+  .tab[aria-selected="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .panel[hidden] { display: none; }
+  .panel p { color: var(--muted); font-size: .95rem; }
+
+  /* tables */
+  .table { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; background: var(--card); }
+  table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+  th, td { text-align: left; padding: .75rem 1rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: .75rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); background: var(--bg-2); white-space: nowrap; }
+  tr:last-child td { border-bottom: 0; }
+  td code { white-space: nowrap; }
+  .swatch { display: inline-block; width: 64px; height: 16px; border-radius: 5px; vertical-align: middle; border: 1px solid rgba(255,255,255,.15); }
+
+  /* terminal transcript */
+  .term { background: var(--code-bg); color: var(--code-ink); border-radius: 14px; overflow: hidden; border: 1px solid #1d2338; box-shadow: var(--shadow); }
+  .term .bar { display: flex; gap: 6px; padding: 10px 12px; background: #11172a; align-items: center; }
+  .term .bar i { width: 10px; height: 10px; border-radius: 50%; background: #e5484d; } .term .bar i:nth-child(2) { background: #f5a623; } .term .bar i:nth-child(3) { background: #30a46c; }
+  .term .bar span { margin-left: 8px; font: .72rem "JetBrains Mono", monospace; color: var(--code-dim); }
+  .term pre { margin: 0; padding: 1rem 1.1rem 1.2rem; font-size: .82rem; line-height: 1.65; overflow-x: auto; white-space: pre; }
+  .t-u { color: #c4b5fd; font-weight: 600; } .t-d { color: var(--code-dim); } .t-ok { color: #86efac; } .t-k { color: #fcd34d; } .t-b { color: #93c5fd; }
+  .note { font-size: .8rem; color: var(--muted); margin-top: .5rem; }
+
+  /* gallery */
+  .gallery { display: grid; gap: 1rem; grid-template-columns: 1fr; }
+  @media (min-width: 640px) { .gallery { grid-template-columns: repeat(2, 1fr); } }
+  .g-item { background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; text-decoration: none; color: var(--ink); display: block; transition: transform .15s ease, box-shadow .15s ease; }
+  .g-item:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+  .g-item img { aspect-ratio: 16/10; height: auto; object-fit: cover; object-position: top; width: 100%; border-bottom: 1px solid var(--line); }
+  .g-item div { padding: .7rem .9rem; display: flex; justify-content: space-between; align-items: center; gap: .5rem; font-size: .9rem; }
+  .g-item b { font-family: "JetBrains Mono", monospace; font-size: .85rem; }
+  .g-item small { color: var(--muted); }
+
+  /* rules */
+  .rules { display: grid; gap: .9rem; grid-template-columns: 1fr; counter-reset: rule; }
+  @media (min-width: 860px) { .rules { grid-template-columns: repeat(2, 1fr); } }
+  .rule { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 1rem 1.1rem 1rem 3.3rem; position: relative; }
+  .rule::before { counter-increment: rule; content: counter(rule); position: absolute; left: 1rem; top: 1rem; width: 1.6rem; height: 1.6rem; border-radius: 8px; background: var(--accent-soft); color: var(--accent); font-weight: 800; font-size: .8rem; display: grid; place-items: center; }
+  .rule b { display: block; margin-bottom: .15rem; }
+  .rule span { color: var(--muted); font-size: .92rem; }
+
+  /* timeline */
+  .timeline { display: grid; grid-template-columns: 1fr; gap: 1.25rem; align-items: start; }
+  @media (min-width: 860px) { .timeline { grid-template-columns: 1fr 1fr; } }
+  .badge { display: inline-block; font-size: .7rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; padding: .2rem .55rem; border-radius: 999px; margin-bottom: .6rem; }
+  .badge.live { background: color-mix(in srgb, var(--ok) 15%, transparent); color: var(--ok); }
+  .badge.gone { background: color-mix(in srgb, var(--warn) 15%, transparent); color: var(--warn); }
+
+  details { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: .9rem 1.1rem; }
+  details + details { margin-top: .6rem; }
+  summary { cursor: pointer; font-weight: 600; }
+  details p { color: var(--muted); margin: .6rem 0 0; }
+
+  footer { padding: 40px 0 60px; border-top: 1px solid var(--line); color: var(--muted); font-size: .9rem; }
+  footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+
+  /* a light snowfall on the docs page itself — the skill eating its own cooking */
+  .docs-snow { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 30; }
+  @keyframes szn-fall { from { transform: translateY(-8vh); } to { transform: translateY(110vh); } }
+  @keyframes szn-sway { 0%, 100% { transform: translateX(0) rotate(-16deg); } 50% { transform: translateX(26px) rotate(16deg); } }
+  @media (prefers-reduced-motion: reduce) { .docs-snow { display: none; } html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#"><span class="e">❄️</span> seasonal-theme</a>
+    <nav class="links">
+      <a class="hide-xs" href="#install">Install</a>
+      <a class="hide-xs" href="#commands">Commands</a>
+      <a class="hide-sm" href="#seasons">Seasons</a>
+      <a class="hide-sm" href="#safety">Safety</a>
+      <a href="demo/">Demo</a>
+      <a href="https://github.com/Itzkiro/Raid-Contractor-Marketing-Wesbite-Themes">GitHub</a>
+      <button class="theme-btn" id="theme" type="button" aria-label="Toggle dark mode">◐</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <span class="pill">⚡ Claude Code skill · MIT</span>
+      <h1>Holiday themes that <em>switch themselves off.</em></h1>
+      <p class="lead">One command adds falling snow, pumpkins or hearts, a seasonal promo bar and an offer card with its terms to any React/Next.js or static site. A hardcoded expiry date in the browser removes all of it for every visitor on the end date, even if you never redeploy.</p>
+      <div class="cta">
+        <a class="btn primary" href="#install">Install the skill</a>
+        <a class="btn ghost" href="demo/">Open the live demo →</a>
+      </div>
+      <div class="cmd" style="max-width:720px">
+        <span class="p">$</span><code>npx degit Itzkiro/Raid-Contractor-Marketing-Wesbite-Themes/skills/seasonal-theme .claude/skills/seasonal-theme</code>
+        <button class="copy" type="button">Copy</button>
+      </div>
+      <figure class="hero-shot">
+        <div class="chrome"><i></i><i></i><i></i><span>/seasonal-theme christmas --density high --promo "Holiday deal: first month $1"</span></div>
+        <img src="assets/screenshots/hero-christmas.png" width="1280" height="800" alt="A demo website with Christmas emoji falling over the page, a dark green and navy announcement bar reading 'Holiday deal: first month $1', and the normal site underneath.">
+      </figure>
+    </div>
+  </section>
+
+  <!-- WHAT YOU GET -->
+  <section class="s">
+    <div class="wrap">
+      <div class="kicker">What it installs</div>
+      <h2>Three layers, one date gate</h2>
+      <p class="intro">Each layer works on its own. All three read the same cutoff timestamp, so they appear together and disappear together.</p>
+      <div class="grid3">
+        <div class="card"><div class="ico">🌨️</div><h3>Weather effect</h3><p>Falling emoji particles over every page, like the classic WordPress "falling elements" plugins. Pure CSS animation: no library, no network request.</p></div>
+        <div class="card"><div class="ico">📣</div><h3>Announcement bar re-skin</h3><p>A seasonal gradient and promo headline on your existing bar. Your normal bar is the fallback branch, so it comes back automatically after the end date.</p></div>
+        <div class="card"><div class="ico">🏷️</div><h3>Offer card</h3><p>A promo card on your offers or landing page, with price, commitment, exclusions and end date printed right beside the claim.</p></div>
+      </div>
+      <div class="grid2" style="margin-top:1.5rem">
+        <figure><div class="shot"><img src="assets/screenshots/offer-card-halloween.png" loading="lazy" width="1280" height="800" alt="Offers section with a purple Halloween offer card first, showing the headline 'Spooky-season special: $1 first month' and an Offer terms list, next to two regular plan cards."></div>
+          <figcaption>The offer card puts the terms on the same card as the headline (rule 8).</figcaption></figure>
+        <figure><div class="shot"><img src="assets/screenshots/season-halloween.png" loading="lazy" width="1280" height="800" alt="Top of the demo page with Halloween emoji falling and the purple announcement bar showing a LIMITED TIME badge and the promo headline."></div>
+          <figcaption>The bar re-skin and weather layer on the Halloween theme.</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUICK START -->
+  <section class="s alt" id="quickstart">
+    <div class="wrap">
+      <div class="kicker">Quick start</div>
+      <h2>From zero to snowing in about a minute</h2>
+      <p class="intro">You need <a href="https://docs.claude.com/en/docs/claude-code/overview">Claude Code</a> and a website repo. The skill is plain Markdown that Claude reads; it has nothing to install at runtime and no dependencies.</p>
+      <div class="steps">
+        <div class="step"><div><h3>Add the skill to your project</h3><p>From the root of your website repo:</p>
+          <div class="cmd"><span class="p">$</span><code>npx degit Itzkiro/Raid-Contractor-Marketing-Wesbite-Themes/skills/seasonal-theme .claude/skills/seasonal-theme</code><button class="copy" type="button">Copy</button></div></div></div>
+        <div class="step"><div><h3>Open Claude Code in that repo</h3><p>Claude Code picks up skills in <code>.claude/skills/</code> when a session starts.</p>
+          <div class="cmd"><span class="p">$</span><code>claude</code><button class="copy" type="button">Copy</button></div></div></div>
+        <div class="step"><div><h3>Ask for a season</h3><p>Use the slash command, or ask in plain words ("make it snow until New Year's").</p>
+          <div class="cmd"><span class="p">&gt;</span><code>/seasonal-theme christmas --promo "Holiday deal: first month $1" --promo-href /offers --terms "$1 month one, then $49/mo; 12-month commitment; new customers only"</code><button class="copy" type="button">Copy</button></div></div></div>
+        <div class="step"><div><h3>Review, commit, deploy</h3><p>Claude finds your layout and announcement bar, works out the UTC cutoff, installs the components, checks them in a headless browser with both a live and a faked future clock, and commits with the expiry date in the message. If your host deploys from <code>main</code>, pushing is the deploy.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INSTALL -->
+  <section class="s" id="install">
+    <div class="wrap">
+      <div class="kicker">Installation</div>
+      <h2>Three ways to add it to a project</h2>
+      <p class="intro">Every method ends with the same file at <code>.claude/skills/seasonal-theme/SKILL.md</code> in your website repo. Commit it so everyone on the team gets the command.</p>
+      <div class="tabs" role="tablist">
+        <button class="tab" role="tab" aria-selected="true" data-tab="t-degit">degit (one-liner)</button>
+        <button class="tab" role="tab" aria-selected="false" data-tab="t-copy">Copy</button>
+        <button class="tab" role="tab" aria-selected="false" data-tab="t-sub">Git submodule</button>
+        <button class="tab" role="tab" aria-selected="false" data-tab="t-user">All projects</button>
+      </div>
+      <div class="panel" id="t-degit" role="tabpanel">
+        <p>Downloads only the skill folder, with no git history. Run it from your project root.</p>
+        <div class="cmd"><span class="p">$</span><code>npx degit Itzkiro/Raid-Contractor-Marketing-Wesbite-Themes/skills/seasonal-theme .claude/skills/seasonal-theme</code><button class="copy" type="button">Copy</button></div>
+      </div>
+      <div class="panel" id="t-copy" role="tabpanel" hidden>
+        <p>Clone this repo once, then copy the folder into any project.</p>
+        <div class="cmd"><span class="p">$</span><code>git clone https://github.com/Itzkiro/Raid-Contractor-Marketing-Wesbite-Themes.git ~/seasonal-theme-skill</code><button class="copy" type="button">Copy</button></div>
+        <div class="cmd" style="margin-top:.5rem"><span class="p">$</span><code>mkdir -p .claude/skills &amp;&amp; cp -r ~/seasonal-theme-skill/skills/seasonal-theme .claude/skills/</code><button class="copy" type="button">Copy</button></div>
+      </div>
+      <div class="panel" id="t-sub" role="tabpanel" hidden>
+        <p>Pins the skill to a commit so <code>git submodule update --remote</code> pulls in later improvements.</p>
+        <div class="cmd"><span class="p">$</span><code>git submodule add https://github.com/Itzkiro/Raid-Contractor-Marketing-Wesbite-Themes.git .claude/vendor/seasonal-theme-skill</code><button class="copy" type="button">Copy</button></div>
+        <div class="cmd" style="margin-top:.5rem"><span class="p">$</span><code>mkdir -p .claude/skills &amp;&amp; ln -s ../vendor/seasonal-theme-skill/skills/seasonal-theme .claude/skills/seasonal-theme</code><button class="copy" type="button">Copy</button></div>
+        <p>The submodule holds the whole repo, so a symlink exposes just the skill at <code>.claude/skills/seasonal-theme</code>. On Windows without symlink support, use the Copy method instead.</p>
+      </div>
+      <div class="panel" id="t-user" role="tabpanel" hidden>
+        <p>Install once for your user account and the command is available in every repo you open with Claude Code.</p>
+        <div class="cmd"><span class="p">$</span><code>npx degit Itzkiro/Raid-Contractor-Marketing-Wesbite-Themes/skills/seasonal-theme ~/.claude/skills/seasonal-theme</code><button class="copy" type="button">Copy</button></div>
+      </div>
+      <div class="card" style="margin-top:1.25rem">
+        <h3>Check that it loaded</h3>
+        <p>Start <code>claude</code> in the project and type <code>/</code>. <code>seasonal-theme</code> should be in the list. Or ask "what skills do you have?" If it isn't there, confirm the file is at <code>.claude/skills/seasonal-theme/SKILL.md</code> (not one folder deeper) and start a new session.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMMANDS -->
+  <section class="s alt" id="commands">
+    <div class="wrap">
+      <div class="kicker">Commands</div>
+      <h2>Every command and option</h2>
+      <p class="intro">Three commands. You can also just describe what you want: "put up the Christmas theme", "make it snow" and "Valentine's hearts please" are all treated as the command.</p>
+
+      <div class="table">
+        <table>
+          <thead><tr><th>Command</th><th>What it does</th></tr></thead>
+          <tbody>
+            <tr><td><code>/seasonal-theme &lt;season&gt; [options]</code></td><td>Installs that season's theme from the <a href="#seasons">catalog</a>, using its default end date unless you pass <code>--ends</code>.</td></tr>
+            <tr><td><code>/seasonal-theme off</code></td><td>Removes the seasonal code completely. Before expiry this ends the promo early. After expiry it is just cleanup, because the code already renders nothing.</td></tr>
+            <tr><td><code>/seasonal-theme status</code></td><td>Reports which theme is installed, its end date, and whether it is live for visitors right now.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 style="margin-top:2.25rem">Options</h3>
+      <div class="table">
+        <table>
+          <thead><tr><th>Flag</th><th>Value</th><th>Effect</th></tr></thead>
+          <tbody>
+            <tr><td><code>--ends</code></td><td><code>YYYY-MM-DD</code></td><td>Overrides the season's default end date. The theme expires at 00:00 on that date in <code>--tz</code>.</td></tr>
+            <tr><td><code>--tz</code></td><td>IANA zone, e.g. <code>America/New_York</code></td><td>Time zone for the cutoff. Claude converts it to a UTC timestamp, accounting for DST.</td></tr>
+            <tr><td><code>--promo</code></td><td><code>"TEXT"</code></td><td>Promo headline for the announcement bar and offer card.</td></tr>
+            <tr><td><code>--promo-href</code></td><td>path, e.g. <code>/offers</code></td><td>Where the bar's promo links to.</td></tr>
+            <tr><td><code>--terms</code></td><td><code>"a; b; c"</code></td><td>Semicolon-separated offer terms, printed on the offer card beside the price.</td></tr>
+            <tr><td><code>--density</code></td><td><code>low</code> | <code>normal</code> | <code>high</code></td><td>Particle count: about 10 / 20 / 32 on desktop, half that on phones.</td></tr>
+            <tr><td><code>--no-weather</code></td><td>—</td><td>Skips the falling-particle layer.</td></tr>
+            <tr><td><code>--no-bar</code></td><td>—</td><td>Leaves the announcement bar alone.</td></tr>
+            <tr><td><code>--no-card</code></td><td>—</td><td>Skips the offer card.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 style="margin-top:2.25rem">Recipes</h3>
+      <div class="grid2">
+        <div><p class="note" style="margin:0 0 .4rem">Just weather, nothing else</p>
+          <div class="cmd"><span class="p">&gt;</span><code>/seasonal-theme snow --ends 2027-01-15 --tz America/Chicago</code><button class="copy" type="button">Copy</button></div></div>
+        <div><p class="note" style="margin:0 0 .4rem">Full Halloween campaign</p>
+          <div class="cmd"><span class="p">&gt;</span><code>/seasonal-theme halloween --promo "Spooky-season special: $1 first month" --promo-href /offers --terms "$1 month one, then $49/mo; 12-month commitment; new customers only"</code><button class="copy" type="button">Copy</button></div></div>
+        <div><p class="note" style="margin:0 0 .4rem">Promo bar only, no particles</p>
+          <div class="cmd"><span class="p">&gt;</span><code>/seasonal-theme valentines --promo "Refer a friend, both save $25" --no-weather --no-card</code><button class="copy" type="button">Copy</button></div></div>
+        <div><p class="note" style="margin:0 0 .4rem">Subtle effect on a busy site</p>
+          <div class="cmd"><span class="p">&gt;</span><code>/seasonal-theme autumn --density low --no-bar --no-card</code><button class="copy" type="button">Copy</button></div></div>
+        <div><p class="note" style="margin:0 0 .4rem">Summer, with a custom end date</p>
+          <div class="cmd"><span class="p">&gt;</span><code>/seasonal-theme summer --ends 2027-09-02 --tz Europe/London --promo "Summer kickoff: $1 first month"</code><button class="copy" type="button">Copy</button></div></div>
+        <div><p class="note" style="margin:0 0 .4rem">Check, then remove</p>
+          <div class="cmd"><span class="p">&gt;</span><code>/seasonal-theme status</code><button class="copy" type="button">Copy</button></div>
+          <div class="cmd" style="margin-top:.5rem"><span class="p">&gt;</span><code>/seasonal-theme off</code><button class="copy" type="button">Copy</button></div></div>
+      </div>
+
+      <h3 style="margin-top:2.25rem">What a session looks like</h3>
+      <div class="grid2">
+        <div>
+          <div class="term"><div class="bar"><i></i><i></i><i></i><span>claude · install</span></div>
+<pre><span class="t-u">&gt; /seasonal-theme christmas --promo "Holiday deal: first month $1"</span>
+<span class="t-u">    --promo-href /offers --terms "$1 month one; 12-month commitment"</span>
+
+<span class="t-d">● Scouting the repo</span>
+  Next.js App Router · bar in components/announcement-bar.tsx
+  highest z-index: modal z-50 → weather overlay at <span class="t-k">z-30</span>
+  bare routes: /lp/* (reusing isBareRoute())
+<span class="t-d">● Computing the cutoff</span>
+  Dec 26 00:00 America/New_York (EST, UTC-5)
+  → <span class="t-b">Date.UTC(2026, 11, 26, 5, 0, 0)</span>
+<span class="t-d">● Installing</span>
+  + components/seasonal-theme.tsx
+  ~ components/announcement-bar.tsx  (seasonal branch)
+  ~ app/offers/page.tsx              (offer card + terms)
+<span class="t-d">● Verifying in a headless browser</span>
+  <span class="t-ok">✓</span> live clock: 20 particles moving, bar + card shown
+  <span class="t-ok">✓</span> 390px viewport: 10 particles
+  <span class="t-ok">✓</span> faked clock after cutoff: 0 seasonal elements
+  <span class="t-ok">✓</span> /lp/* routes clean
+<span class="t-d">● Committed</span> "Add Christmas theme (expires 2026-12-26 ET)"</pre></div>
+          <p class="note">Illustrative. File names and paths depend on your repo.</p>
+        </div>
+        <div>
+          <div class="term"><div class="bar"><i></i><i></i><i></i><span>claude · status / off</span></div>
+<pre><span class="t-u">&gt; /seasonal-theme status</span>
+
+  theme      christmas
+  layers     weather · bar · card
+  expires    2026-12-26 00:00 America/New_York
+             (2026-12-26T05:00:00Z)
+  live now   <span class="t-ok">yes</span>, 78 days left
+
+<span class="t-u">&gt; /seasonal-theme off</span>
+
+<span class="t-d">● Removing</span>
+  - components/seasonal-theme.tsx
+  ~ components/announcement-bar.tsx  (seasonal branch reverted)
+  ~ app/offers/page.tsx              (card include removed)
+<span class="t-d">● Build</span> <span class="t-ok">✓</span>  normal bar content verified
+<span class="t-d">● Committed</span> "Remove Christmas theme"</pre></div>
+          <p class="note">Illustrative. You can also say "is the holiday theme still on?" or "take the snow down".</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SEASONS -->
+  <section class="s" id="seasons">
+    <div class="wrap">
+      <div class="kicker">Season catalog</div>
+      <h2>Ten seasons ready to go</h2>
+      <p class="intro">Every default can be overridden with flags. Click a screenshot to open that season in the live demo. <code>snow</code> and <code>rain</code> are weather-only, so they default to <code>--no-bar --no-card</code>.</p>
+      <div class="gallery" id="gallery"></div>
+
+      <h3 style="margin-top:2.25rem">Defaults</h3>
+      <div class="table">
+        <table>
+          <thead><tr><th>Season key</th><th>Particles</th><th>Bar gradient (from → via → to)</th><th>Accent</th><th>Default end (local)</th></tr></thead>
+          <tbody id="catalog"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPIRY -->
+  <section class="s alt" id="expiry">
+    <div class="wrap">
+      <div class="kicker">How it expires</div>
+      <h2>The cutoff is checked in the visitor's browser</h2>
+      <p class="intro">On a static or SSG site, a server-side date check runs once at build time and never runs again, so the theme would never expire. The skill hardcodes the cutoff as a UTC timestamp and compares it with <code>Date.now()</code> in the browser after mount. When the date passes, every visitor sees your normal site on their next page load, with no redeploy.</p>
+      <div class="cmd" style="margin-bottom:1.75rem"><code>// Nov 1, 00:00 America/New_York (EDT, UTC-4) == 04:00 UTC
+const ENDS_UTC = Date.UTC(2026, 10, 1, 4, 0, 0);</code></div>
+      <div class="timeline">
+        <figure><span class="badge live">Before the cutoff</span>
+          <div class="shot"><img src="assets/screenshots/season-halloween.png" loading="lazy" width="1280" height="800" alt="Demo site with the Halloween theme live: purple promo bar and falling emoji."></div>
+          <figcaption><code>Date.now() &lt; ENDS_UTC</code>: weather, bar and card render.</figcaption></figure>
+        <figure><span class="badge gone">After the cutoff</span>
+          <div class="shot"><img src="assets/screenshots/expired-halloween.png" loading="lazy" width="1280" height="800" alt="The same demo site after expiry: the plain dark announcement bar is back and nothing is falling."></div>
+          <figcaption>Same build, clock faked past the cutoff: the original bar is back and nothing seasonal renders.</figcaption></figure>
+      </div>
+      <p class="note" style="margin-top:1rem">The "after" screenshot was taken the way the skill verifies an install: by overriding the clock past the cutoff in a headless browser. Try it with the checkbox in the <a href="demo/?season=halloween&amp;expired=1">demo</a>.</p>
+    </div>
+  </section>
+
+  <!-- MOBILE -->
+  <section class="s" id="mobile">
+    <div class="wrap">
+      <div class="kicker">Mobile &amp; density</div>
+      <h2>Half the particles on phones</h2>
+      <p class="intro">Below 640px wide, the particle count is halved. The first screen on a phone is already crowded, and a seasonal effect shouldn't get in the way of a visitor who came to convert.</p>
+      <div class="grid3" style="align-items:start">
+        <figure><div class="shot" style="max-width:300px;margin:0 auto"><img src="assets/screenshots/mobile-christmas.png" loading="lazy" width="780" height="1688" alt="Phone-size screenshot of the Christmas theme with ten particles and the promo bar wrapping to two lines."></div>
+          <figcaption style="text-align:center">Christmas at 390px: 10 particles.</figcaption></figure>
+        <figure><div class="shot"><img src="assets/screenshots/density-low.png" loading="lazy" width="1280" height="800" alt="Autumn theme at low density with about ten leaves on screen."></div>
+          <figcaption><code>--density low</code>: about 10 on desktop.</figcaption></figure>
+        <figure><div class="shot"><img src="assets/screenshots/density-high.png" loading="lazy" width="1280" height="800" alt="Autumn theme at high density with about thirty-two leaves and acorns on screen."></div>
+          <figcaption><code>--density high</code>: about 32 on desktop.</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- SAFETY -->
+  <section class="s alt" id="safety">
+    <div class="wrap">
+      <div class="kicker">Why it's safe for production</div>
+      <h2>Ten rules that come from real incidents</h2>
+      <p class="intro">The skill tells Claude to follow all of them on every install. They're why a seasonal theme won't cost you conversions, SEO or a broken page.</p>
+      <div class="rules">
+        <div class="rule"><b>Client-side UTC date gate</b><span>The cutoff is a hardcoded UTC timestamp compared in the browser, so static and SSG builds still expire.</span></div>
+        <div class="rule"><b>Mount-only rendering</b><span>Server HTML never contains the theme: no hydration mismatch, no SEO or meta churn.</span></div>
+        <div class="rule"><b>Harmless overlay</b><span><code>pointer-events: none</code>, fixed and clipped, with a z-index below your modals, cookie banners and sticky CTAs.</span></div>
+        <div class="rule"><b>Respects reduced motion</b><span>The whole particle field is hidden under <code>prefers-reduced-motion: reduce</code>.</span></div>
+        <div class="rule"><b>Skips conversion-critical routes</b><span>Bare ad-landing and checkout routes stay clean, using your site's existing exclusion helper.</span></div>
+        <div class="rule"><b>Half density on phones</b><span>Viewports under 640px get half the particles.</span></div>
+        <div class="rule"><b>try/catch around all storage</b><span>Bare <code>localStorage</code> access throws in blocked cross-origin iframes and can take the whole page down.</span></div>
+        <div class="rule"><b>Terms beside the claim</b><span>Commitment, exclusions and end date go on the same card as the price headline. No separate fine-print page.</span></div>
+        <div class="rule"><b>Negative animation delays</b><span>Particles are already mid-fall on first paint, so visitors don't see an empty sky.</span></div>
+        <div class="rule"><b>Inert after expiry</b><span>Past the end date the code renders nothing, so removing it is cleanup you can do whenever.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FRAMEWORKS -->
+  <section class="s" id="frameworks">
+    <div class="wrap">
+      <div class="kicker">Works with</div>
+      <h2>React, Next.js, or a plain HTML file</h2>
+      <div class="grid2">
+        <div class="card"><h3>React / Next.js (App Router)</h3><p>A <code>"use client"</code> component, <code>components/seasonal-theme.tsx</code>, exports <code>useSeason()</code> and <code>&lt;SeasonalWeather /&gt;</code>. Claude mounts it once in your layout or announcement bar, then uses <code>useSeason()</code> to branch the bar and gate the offer card. Works on Vercel, Netlify or any static export.</p></div>
+        <div class="card"><h3>Static sites (HTML, Astro, 11ty, …)</h3><p>One deferred <code>&lt;script&gt;</code> with no framework and no build step. It checks the date and reduced-motion, then appends the particle field to <code>document.body</code>. <a href="demo/">The live demo</a> runs this exact script.</p></div>
+      </div>
+      <p class="note" style="margin-top:1rem">Both reference implementations are in <a href="https://github.com/Itzkiro/Raid-Contractor-Marketing-Wesbite-Themes/blob/main/skills/seasonal-theme/SKILL.md">SKILL.md</a>.</p>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="s alt" id="faq">
+    <div class="wrap">
+      <div class="kicker">FAQ</div>
+      <h2>Questions</h2>
+      <details><summary>Do I have to redeploy to turn the theme off?</summary><p>No. The cutoff is checked in each visitor's browser, so the theme disappears on its own at the end date. Run <code>/seasonal-theme off</code> later if you want the code gone from the repo.</p></details>
+      <details><summary>What if a visitor's clock is wrong?</summary><p>The gate uses the visitor's device clock. Someone whose clock is set far in the past would still see the theme after the cutoff. That's harmless for a decorative effect. If your promo terms must never be shown after the end date, run <code>/seasonal-theme off</code> on the end date too.</p></details>
+      <details><summary>Will it hurt SEO or Core Web Vitals?</summary><p>Nothing seasonal is in the server HTML, so crawlers see your normal page. The particles are a few dozen CSS-animated spans inside a fixed, clipped overlay, with no images, fonts or network requests.</p></details>
+      <details><summary>Can I add my own season?</summary><p>Yes. Ask for it in plain words, e.g. "a back-to-school theme with 📚 ✏️ 🎒 until Sept 10". The catalog is the default set, and the components take any emoji list and end date.</p></details>
+      <details><summary>Does it work without Tailwind?</summary><p>Yes. The React reference uses Tailwind class names because that's common on Next.js sites. On a site without Tailwind, Claude translates them to the site's own CSS. The vanilla script uses inline styles only.</p></details>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>seasonal-theme · MIT licensed · a skill for <a href="https://docs.claude.com/en/docs/claude-code/overview">Claude Code</a></span>
+    <span><a href="https://github.com/Itzkiro/Raid-Contractor-Marketing-Wesbite-Themes">Source on GitHub</a> · <a href="demo/">Live demo</a></span>
+  </div>
+</footer>
+
+<script>
+  // Catalog (mirrors SKILL.md — SKILL.md is canonical)
+  var SEASONS = [
+    ["halloween",   "🎃 🦇 👻 🍂 🍁 🕸️", ["#1a0b2e","#38185c","#1a0b2e"], "text-orange-300 / badge bg-orange-500", "Nov 1"],
+    ["christmas",   "❄️ 🎄 ⛄ 🎁 ✨",     ["#0b1f3a","#14532d","#0b1f3a"], "text-red-300 / badge bg-red-500",       "Dec 26"],
+    ["new-year",    "✨ 🎆 ⭐ 🥂",        ["#111111","#3b2f0b","#111111"], "text-yellow-300 / badge bg-yellow-400", "Jan 2"],
+    ["valentines",  "❤️ 💘 💝 🌹",        ["#4c0519","#881337","#4c0519"], "text-pink-300 / badge bg-pink-500",     "Feb 15"],
+    ["st-patricks", "☘️ 🍀 ✨",           ["#052e16","#166534","#052e16"], "text-green-300 / badge bg-green-500",   "Mar 18"],
+    ["spring",      "🌸 🌷 🦋 🐝",        ["#1e3a5f","#2563eb","#1e3a5f"], "text-pink-200 / badge bg-pink-400",     "configurable"],
+    ["summer",      "☀️ 🌊 🍉 😎",        ["#0c4a6e","#0891b2","#0c4a6e"], "text-yellow-200 / badge bg-yellow-400", "configurable"],
+    ["autumn",      "🍂 🍁 🌰",           ["#431407","#9a3412","#431407"], "text-amber-200 / badge bg-amber-500",   "Nov 30"],
+    ["snow",        "❄️ (only)",          null, "—", "configurable"],
+    ["rain",        "💧 (only)",          null, "—", "configurable"]
+  ];
+  var tb = document.getElementById("catalog"), gal = document.getElementById("gallery");
+  SEASONS.forEach(function (s) {
+    var tr = document.createElement("tr");
+    var grad = s[2] ? '<span class="swatch" style="background:linear-gradient(90deg,' + s[2].join(",") + ')"></span> <code>' + s[2].join(" → ") + "</code>" : "keep site bar";
+    var acc = s[3] === "—" ? "—" : s[3].split(" / ").map(function (x) { return "<code>" + x.replace("badge ", "") + "</code>"; }).join(" / badge ");
+    tr.innerHTML = "<td><code>" + s[0] + "</code></td><td>" + s[1] + "</td><td>" + grad + "</td><td>" + acc + "</td><td>" + s[4] + "</td>";
+    tb.appendChild(tr);
+    var a = document.createElement("a");
+    a.className = "g-item"; a.href = "demo/?season=" + s[0];
+    a.innerHTML = '<img loading="lazy" width="1280" height="800" src="assets/screenshots/season-' + s[0] + '.png" alt="Demo site with the ' + s[0] + ' theme applied">' +
+      "<div><b>" + s[0] + "</b><small>" + s[1].replace(" (only)", "") + "</small></div>";
+    gal.appendChild(a);
+  });
+
+  // Tabs
+  document.querySelectorAll(".tab").forEach(function (t) {
+    t.addEventListener("click", function () {
+      document.querySelectorAll(".tab").forEach(function (x) { x.setAttribute("aria-selected", x === t ? "true" : "false"); });
+      document.querySelectorAll(".panel").forEach(function (p) { p.hidden = p.id !== t.dataset.tab; });
+    });
+  });
+
+  // Copy buttons
+  document.querySelectorAll(".copy").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var text = b.parentElement.querySelector("code").textContent;
+      var done = function () { b.textContent = "Copied"; b.classList.add("ok"); setTimeout(function () { b.textContent = "Copy"; b.classList.remove("ok"); }, 1400); };
+      if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, function () {});
+    });
+  });
+
+  // Theme toggle (per-viewer convenience; storage wrapped per rule 7)
+  (function () {
+    var root = document.documentElement, KEY = "szn-docs-theme";
+    try { var saved = localStorage.getItem(KEY); if (saved) root.setAttribute("data-theme", saved); } catch (e) {}
+    document.getElementById("theme").addEventListener("click", function () {
+      var dark = root.getAttribute("data-theme") ? root.getAttribute("data-theme") === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+      var next = dark ? "light" : "dark";
+      root.setAttribute("data-theme", next);
+      try { localStorage.setItem(KEY, next); } catch (e) {}
+    });
+  })();
+
+  // A light snowfall on the docs page itself, using the skill's own technique.
+  (function () {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    var N = innerWidth < 640 ? 5 : 10;
+    var field = document.createElement("div");
+    field.className = "docs-snow"; field.setAttribute("aria-hidden", "true");
+    for (var i = 0; i < N; i++) {
+      var o = document.createElement("span"), n = document.createElement("span");
+      var dur = 12 + Math.random() * 12, delay = -Math.random() * 24;
+      o.style.cssText = "position:absolute;top:0;left:" + Math.random() * 100 + "%;font-size:" + (11 + Math.random() * 10) + "px;opacity:" + (0.25 + Math.random() * 0.3) + ";will-change:transform;animation:szn-fall " + dur + "s linear " + delay + "s infinite";
+      n.style.cssText = "display:inline-block;animation:szn-sway " + (4 + Math.random() * 4) + "s ease-in-out " + delay + "s infinite";
+      n.textContent = "❄️"; o.appendChild(n); field.appendChild(o);
+    }
+    document.body.appendChild(field);
+  })();
+</script>
+</body>
+</html>
