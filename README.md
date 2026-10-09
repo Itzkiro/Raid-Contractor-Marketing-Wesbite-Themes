@@ -1,6 +1,6 @@
 # ❄️ seasonal-theme: self-expiring holiday themes for any website
 
-A [Claude Code](https://docs.claude.com/en/docs/claude-code/overview) skill that adds a seasonal theme to any **React/Next.js (Vercel) or static website** with one command: falling weather effects, a themed announcement bar and an offer card with compliant terms.
+A [Claude Code](https://docs.claude.com/en/docs/claude-code/overview) skill that adds a seasonal theme to any **React/Next.js (Vercel) or static website** with one command, typed into the Claude Code cloud session that manages your site's GitHub repo: falling weather effects, a themed announcement bar and an offer card with compliant terms.
 
 The expiry date is **hardcoded and checked in the visitor's browser**, so the theme disappears for every visitor on the end date, even if the site is never redeployed.
 
@@ -38,60 +38,83 @@ After the end date the code renders nothing anywhere. Removing it is cleanup, no
 
 ## Quick start
 
-```bash
-# 1. In your website repo, add the skill
-npx degit Itzkiro/Raid-Contractor-Marketing-Wesbite-Themes/skills/seasonal-theme .claude/skills/seasonal-theme
-
-# 2. Start Claude Code
-claude
-```
+Built for websites that **live in a GitHub repo, deploy on Vercel**, and are run from a **Claude Code cloud session** (claude.ai/code or the Claude app) attached to that repo. You type everything into the Claude session; there's no local terminal involved.
 
 ```text
-# 3. Ask for a season
-> /seasonal-theme christmas --promo "Holiday deal: first month $1" --promo-href /offers --terms "$1 month one, then $49/mo; 12-month commitment; new customers only"
+Website repo on GitHub  ──►  Claude Code cloud session  ──►  push / PR  ──►  Vercel preview  ──►  merge to main  ──►  Vercel production
 ```
 
-Claude then:
-
-1. Scouts your repo (framework, layout, announcement bar, z-indexes, bare/landing routes, offers page).
-2. Converts the end date to a UTC cutoff and tells you the exact expiry moment.
-3. Installs the components.
-4. Checks them in a headless browser with the real clock and with a clock faked past the cutoff.
-5. Commits with the expiry date in the message.
+1. **Install once:** paste the [install prompt](#installation) into a Claude session on your website repo. Claude adds the skill file and commits it.
+2. **Start a new session** on the same repo. Skills are read when a session starts.
+3. **Run a season:**
+   ```text
+   /seasonal-theme christmas --promo "Holiday deal: first month $1" --promo-href /offers --terms "$1 month one, then $49/mo; 12-month commitment; new customers only"
+   ```
+4. **Check the Vercel preview, then merge.** Claude pushes to a branch, Vercel builds a preview URL for it, and merging to `main` takes it to production.
 
 You can also ask in plain words, e.g. *"put up the Christmas theme"*, *"make it snow"* or *"Valentine's hearts please"*.
 
 ## Installation
 
-Every method puts the skill at `.claude/skills/seasonal-theme/SKILL.md` in your project. Commit it so the whole team gets the command.
+The skill is a single file. It has to be **committed inside your website repo** at `.claude/skills/seasonal-theme/SKILL.md`: a cloud session starts from a fresh clone of the repo every time, so anything not in the repo is gone in the next session.
 
-**a) degit (one-liner, recommended)**
+### 1. Paste this into a Claude Code session on your website repo
 
-```bash
-npx degit Itzkiro/Raid-Contractor-Marketing-Wesbite-Themes/skills/seasonal-theme .claude/skills/seasonal-theme
+```text
+Install the seasonal-theme Claude Code skill into this repo.
+
+Download https://raw.githubusercontent.com/Itzkiro/Raid-Contractor-Marketing-Wesbite-Themes/main/skills/seasonal-theme/SKILL.md
+to .claude/skills/seasonal-theme/SKILL.md. If that host is blocked, run
+git clone --depth 1 https://github.com/Itzkiro/Raid-Contractor-Marketing-Wesbite-Themes.git
+in a temp folder and copy skills/seasonal-theme/ into .claude/skills/.
+
+Don't edit the file and don't change anything else. Commit it as
+"Add seasonal-theme Claude Code skill" and push.
 ```
 
-**b) Copy**
+Claude runs the equivalent of:
 
 ```bash
-git clone https://github.com/Itzkiro/Raid-Contractor-Marketing-Wesbite-Themes.git ~/seasonal-theme-skill
-mkdir -p .claude/skills && cp -r ~/seasonal-theme-skill/skills/seasonal-theme .claude/skills/
+mkdir -p .claude/skills/seasonal-theme
+curl -fsSL https://raw.githubusercontent.com/Itzkiro/Raid-Contractor-Marketing-Wesbite-Themes/main/skills/seasonal-theme/SKILL.md \
+  -o .claude/skills/seasonal-theme/SKILL.md
+git add .claude/skills/seasonal-theme && git commit -m "Add seasonal-theme Claude Code skill" && git push
 ```
 
-**c) Git submodule** (pinned; update with `git submodule update --remote`)
+### 2. Get it onto `main`
+
+Cloud sessions push to their own `claude/...` branch. Open a PR for that branch (or ask Claude to) and merge it, so every new session on the repo starts with the skill. The skill is a Markdown file under `.claude/`, so Vercel ignores it and the site doesn't change.
+
+### 3. Start a new session and check it loaded
+
+Open a new Claude Code session on the repo and type `/`. `seasonal-theme` should be in the list, or ask *"what skills do you have?"*. If it's missing, check that the file is at exactly `.claude/skills/seasonal-theme/SKILL.md` on the branch the session started from.
+
+### Shipping a theme with Vercel
+
+1. Run `/seasonal-theme <season> ...` in the session. Claude installs the theme, checks it in a headless browser (live clock and a clock faked past the end date), commits and pushes to its branch.
+2. Vercel builds a **preview deployment** for that branch. The link shows up on the PR and in the Vercel dashboard. Check the falling particles, the bar and the offer card there.
+3. **Merge to `main`.** Vercel deploys to production.
+4. On the end date the theme disappears by itself. No redeploy is needed. Run `/seasonal-theme off` in a later session to remove the code.
+
+### Network access in the cloud environment
+
+The install needs `raw.githubusercontent.com` or `github.com`, which the default *Trusted* network level allows. If your environment uses a stricter level and the download is blocked, add `raw.githubusercontent.com` under **Allowed domains**: open the cloud environment menu in the session's title bar, then **Edit → Network access**. See the [cloud environments docs](https://code.claude.com/docs/en/cloud-environments#network-access).
+
+<details>
+<summary>Installing from a local terminal instead</summary>
+
+From the root of the website repo:
 
 ```bash
-git submodule add https://github.com/Itzkiro/Raid-Contractor-Marketing-Wesbite-Themes.git .claude/vendor/seasonal-theme-skill
-mkdir -p .claude/skills && ln -s ../vendor/seasonal-theme-skill/skills/seasonal-theme .claude/skills/seasonal-theme
+mkdir -p .claude/skills/seasonal-theme
+curl -fsSL https://raw.githubusercontent.com/Itzkiro/Raid-Contractor-Marketing-Wesbite-Themes/main/skills/seasonal-theme/SKILL.md \
+  -o .claude/skills/seasonal-theme/SKILL.md
+git add .claude/skills/seasonal-theme && git commit -m "Add seasonal-theme Claude Code skill" && git push
 ```
 
-**d) For every project on your machine** (user-level skill)
+Or with degit: `npx degit Itzkiro/Raid-Contractor-Marketing-Wesbite-Themes/skills/seasonal-theme .claude/skills/seasonal-theme`
 
-```bash
-npx degit Itzkiro/Raid-Contractor-Marketing-Wesbite-Themes/skills/seasonal-theme ~/.claude/skills/seasonal-theme
-```
-
-**Check that it loaded:** start `claude` in the project and type `/`. `seasonal-theme` should be in the list. If it's missing, make sure the path is exactly `.claude/skills/seasonal-theme/SKILL.md` and start a new session.
+</details>
 
 ## Commands
 

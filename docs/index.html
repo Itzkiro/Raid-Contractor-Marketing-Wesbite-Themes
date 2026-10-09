@@ -37,7 +37,7 @@
   img { max-width: 100%; height: auto; display: block; }
   a { color: var(--accent); }
   code, pre, kbd { font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace; }
-  :not(pre) > code { font-size: .86em; background: var(--bg-2); border: 1px solid var(--line); padding: .1em .4em; border-radius: 6px; white-space: nowrap; }
+  :not(pre) > code { font-size: .86em; background: var(--bg-2); border: 1px solid var(--line); padding: .1em .4em; border-radius: 6px; overflow-wrap: anywhere; }
   .wrap { max-width: 1120px; margin: 0 auto; padding: 0 16px; }
   @media (min-width: 720px) { .wrap { padding: 0 28px; } }
 
@@ -76,6 +76,11 @@
   .cmd code { overflow-x: auto; white-space: pre; flex: 1; min-width: 0; scrollbar-width: thin; }
   .cmd code { background: none; border: 0; padding: 0; color: inherit; font-size: inherit; border-radius: 0; }
   .cmd .p { color: var(--code-dim); user-select: none; }
+  .cmd.prompt { align-items: flex-start; }
+  .cmd.prompt code { line-height: 1.6; }
+  .flow { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; margin: 0 0 2rem; font-size: .85rem; }
+  .flow span { background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: .3rem .75rem; font-weight: 600; }
+  .flow i { font-style: normal; color: var(--muted); }
   .copy { flex: none; background: #1d2338; color: #c9cfdf; border: 1px solid #2b3350; border-radius: 7px; font: 600 .72rem Inter, sans-serif; padding: .35rem .6rem; cursor: pointer; }
   .copy.ok { color: #86efac; border-color: #166534; }
 
@@ -193,15 +198,12 @@
     <div class="wrap">
       <span class="pill">⚡ Claude Code skill · MIT</span>
       <h1>Holiday themes that <em>switch themselves off.</em></h1>
-      <p class="lead">One command adds falling snow, pumpkins or hearts, a seasonal promo bar and an offer card with its terms to any React/Next.js or static site. A hardcoded expiry date in the browser removes all of it for every visitor on the end date, even if you never redeploy.</p>
+      <p class="lead">One command adds falling snow, pumpkins or hearts, a seasonal promo bar and an offer card with its terms to any React/Next.js or static site. Type it into the Claude Code session that runs your site's repo. A hardcoded expiry date in the browser removes all of it for every visitor on the end date, even if you never redeploy.</p>
       <div class="cta">
         <a class="btn primary" href="#install">Install the skill</a>
         <a class="btn ghost" href="demo/">Open the live demo →</a>
       </div>
-      <div class="cmd" style="max-width:720px">
-        <span class="p">$</span><code>npx degit Itzkiro/Raid-Contractor-Marketing-Wesbite-Themes/skills/seasonal-theme .claude/skills/seasonal-theme</code>
-        <button class="copy" type="button">Copy</button>
-      </div>
+      <p class="note" style="margin:0">For websites on GitHub + Vercel, managed from a Claude Code cloud session. You install it by pasting one prompt into that session.</p>
       <figure class="hero-shot">
         <div class="chrome"><i></i><i></i><i></i><span>/seasonal-theme christmas --density high --promo "Holiday deal: first month $1"</span></div>
         <img src="assets/screenshots/hero-christmas.png" width="1280" height="800" alt="A demo website with Christmas emoji falling over the page, a dark green and navy announcement bar reading 'Holiday deal: first month $1', and the normal site underneath.">
@@ -233,16 +235,17 @@
   <section class="s alt" id="quickstart">
     <div class="wrap">
       <div class="kicker">Quick start</div>
-      <h2>From zero to snowing in about a minute</h2>
-      <p class="intro">You need <a href="https://docs.claude.com/en/docs/claude-code/overview">Claude Code</a> and a website repo. The skill is plain Markdown that Claude reads; it has nothing to install at runtime and no dependencies.</p>
+      <h2>Built for GitHub + Vercel sites run from Claude Code</h2>
+      <p class="intro">Your website's code lives in a GitHub repo, Vercel deploys it, and you make changes from a <a href="https://claude.ai/code">Claude Code cloud session</a> (claude.ai/code or the Claude app) attached to that repo. Everything below happens in that session. There's no local terminal.</p>
+      <div class="flow" aria-label="Workflow">
+        <span>GitHub repo</span><i>→</i><span>Claude Code session</span><i>→</i><span>push / PR</span><i>→</i><span>Vercel preview</span><i>→</i><span>merge to <code>main</code></span><i>→</i><span>Vercel production</span>
+      </div>
       <div class="steps">
-        <div class="step"><div><h3>Add the skill to your project</h3><p>From the root of your website repo:</p>
-          <div class="cmd"><span class="p">$</span><code>npx degit Itzkiro/Raid-Contractor-Marketing-Wesbite-Themes/skills/seasonal-theme .claude/skills/seasonal-theme</code><button class="copy" type="button">Copy</button></div></div></div>
-        <div class="step"><div><h3>Open Claude Code in that repo</h3><p>Claude Code picks up skills in <code>.claude/skills/</code> when a session starts.</p>
-          <div class="cmd"><span class="p">$</span><code>claude</code><button class="copy" type="button">Copy</button></div></div></div>
-        <div class="step"><div><h3>Ask for a season</h3><p>Use the slash command, or ask in plain words ("make it snow until New Year's").</p>
+        <div class="step"><div><h3>Install once</h3><p>Paste the <a href="#install">install prompt</a> into a session on your website repo. Claude adds one file, <code>.claude/skills/seasonal-theme/SKILL.md</code>, commits it and pushes. Merge that into <code>main</code>.</p></div></div>
+        <div class="step"><div><h3>Start a new session on the repo</h3><p>Skills are read when a session starts, so open a fresh one after the skill is on <code>main</code>.</p></div></div>
+        <div class="step"><div><h3>Ask for a season</h3><p>Type the slash command into the session, or ask in plain words ("make it snow until New Year's").</p>
           <div class="cmd"><span class="p">&gt;</span><code>/seasonal-theme christmas --promo "Holiday deal: first month $1" --promo-href /offers --terms "$1 month one, then $49/mo; 12-month commitment; new customers only"</code><button class="copy" type="button">Copy</button></div></div></div>
-        <div class="step"><div><h3>Review, commit, deploy</h3><p>Claude finds your layout and announcement bar, works out the UTC cutoff, installs the components, checks them in a headless browser with both a live and a faked future clock, and commits with the expiry date in the message. If your host deploys from <code>main</code>, pushing is the deploy.</p></div></div>
+        <div class="step"><div><h3>Check the Vercel preview, then merge</h3><p>Claude scouts the repo, works out the UTC cutoff, installs the components, checks them in a headless browser with a live and a faked future clock, and pushes to its branch. Vercel builds a preview URL for that branch, so you can look at the theme there before merging to <code>main</code> and going to production.</p></div></div>
       </div>
     </div>
   </section>
@@ -251,37 +254,46 @@
   <section class="s" id="install">
     <div class="wrap">
       <div class="kicker">Installation</div>
-      <h2>Three ways to add it to a project</h2>
-      <p class="intro">Every method ends with the same file at <code>.claude/skills/seasonal-theme/SKILL.md</code> in your website repo. Commit it so everyone on the team gets the command.</p>
-      <div class="tabs" role="tablist">
-        <button class="tab" role="tab" aria-selected="true" data-tab="t-degit">degit (one-liner)</button>
-        <button class="tab" role="tab" aria-selected="false" data-tab="t-copy">Copy</button>
-        <button class="tab" role="tab" aria-selected="false" data-tab="t-sub">Git submodule</button>
-        <button class="tab" role="tab" aria-selected="false" data-tab="t-user">All projects</button>
+      <h2>Install it from your Claude Code session</h2>
+      <p class="intro">The skill is a single file, and it has to be <b>committed in your website repo</b> at <code>.claude/skills/seasonal-theme/SKILL.md</code>. Each cloud session starts from a fresh clone of the repo, so anything that isn't committed is gone in the next session.</p>
+
+      <h3>1 · Paste this into a session on your website repo</h3>
+      <div class="cmd prompt"><code>Install the seasonal-theme Claude Code skill into this repo.
+
+Download https://raw.githubusercontent.com/Itzkiro/Raid-Contractor-Marketing-Wesbite-Themes/main/skills/seasonal-theme/SKILL.md
+to .claude/skills/seasonal-theme/SKILL.md. If that host is blocked, run
+git clone --depth 1 https://github.com/Itzkiro/Raid-Contractor-Marketing-Wesbite-Themes.git
+in a temp folder and copy skills/seasonal-theme/ into .claude/skills/.
+
+Don't edit the file and don't change anything else. Commit it as
+"Add seasonal-theme Claude Code skill" and push.</code><button class="copy" type="button">Copy</button></div>
+      <p class="note">Under the hood, Claude runs roughly <code>mkdir -p .claude/skills/seasonal-theme &amp;&amp; curl -fsSL …/SKILL.md -o .claude/skills/seasonal-theme/SKILL.md</code>, then commits and pushes.</p>
+
+      <div class="grid3" style="margin-top:1.75rem">
+        <div class="card"><h3>2 · Merge it to <code>main</code></h3><p>The session pushes to its own <code>claude/…</code> branch. Open a PR (or ask Claude to) and merge it, so every new session starts with the skill. It's a Markdown file under <code>.claude/</code>, so the Vercel build and your live site don't change.</p></div>
+        <div class="card"><h3>3 · Check it loaded</h3><p>Open a <b>new</b> session on the repo and type <code>/</code>. <code>seasonal-theme</code> should be listed. If it isn't, make sure the file is at exactly <code>.claude/skills/seasonal-theme/SKILL.md</code> on the branch the session started from.</p></div>
+        <div class="card"><h3>Network access</h3><p>The download needs <code>raw.githubusercontent.com</code> or <code>github.com</code>, which the default <i>Trusted</i> network level allows. On a stricter level, add the host under <b>Allowed domains</b> (cloud environment menu → Edit → Network access). <a href="https://code.claude.com/docs/en/cloud-environments#network-access">Docs</a>.</p></div>
       </div>
-      <div class="panel" id="t-degit" role="tabpanel">
-        <p>Downloads only the skill folder, with no git history. Run it from your project root.</p>
-        <div class="cmd"><span class="p">$</span><code>npx degit Itzkiro/Raid-Contractor-Marketing-Wesbite-Themes/skills/seasonal-theme .claude/skills/seasonal-theme</code><button class="copy" type="button">Copy</button></div>
+
+      <h3 style="margin-top:2.25rem">Shipping a theme with Vercel</h3>
+      <div class="table">
+        <table>
+          <thead><tr><th>Step</th><th>Where</th><th>What happens</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Claude session</td><td><code>/seasonal-theme &lt;season&gt; …</code>: Claude installs the theme, verifies it in a headless browser, commits and pushes to its branch.</td></tr>
+            <tr><td>2</td><td>Vercel preview</td><td>Vercel builds the branch. Open the preview link on the PR or in the Vercel dashboard and check the particles, bar and card.</td></tr>
+            <tr><td>3</td><td>GitHub</td><td>Merge the PR into <code>main</code>. Vercel deploys to production.</td></tr>
+            <tr><td>4</td><td>Visitors' browsers</td><td>On the end date the theme disappears by itself, with no redeploy needed.</td></tr>
+            <tr><td>5</td><td>Claude session (any time later)</td><td><code>/seasonal-theme off</code> removes the code. Merge, and you're done.</td></tr>
+          </tbody>
+        </table>
       </div>
-      <div class="panel" id="t-copy" role="tabpanel" hidden>
-        <p>Clone this repo once, then copy the folder into any project.</p>
-        <div class="cmd"><span class="p">$</span><code>git clone https://github.com/Itzkiro/Raid-Contractor-Marketing-Wesbite-Themes.git ~/seasonal-theme-skill</code><button class="copy" type="button">Copy</button></div>
-        <div class="cmd" style="margin-top:.5rem"><span class="p">$</span><code>mkdir -p .claude/skills &amp;&amp; cp -r ~/seasonal-theme-skill/skills/seasonal-theme .claude/skills/</code><button class="copy" type="button">Copy</button></div>
-      </div>
-      <div class="panel" id="t-sub" role="tabpanel" hidden>
-        <p>Pins the skill to a commit so <code>git submodule update --remote</code> pulls in later improvements.</p>
-        <div class="cmd"><span class="p">$</span><code>git submodule add https://github.com/Itzkiro/Raid-Contractor-Marketing-Wesbite-Themes.git .claude/vendor/seasonal-theme-skill</code><button class="copy" type="button">Copy</button></div>
-        <div class="cmd" style="margin-top:.5rem"><span class="p">$</span><code>mkdir -p .claude/skills &amp;&amp; ln -s ../vendor/seasonal-theme-skill/skills/seasonal-theme .claude/skills/seasonal-theme</code><button class="copy" type="button">Copy</button></div>
-        <p>The submodule holds the whole repo, so a symlink exposes just the skill at <code>.claude/skills/seasonal-theme</code>. On Windows without symlink support, use the Copy method instead.</p>
-      </div>
-      <div class="panel" id="t-user" role="tabpanel" hidden>
-        <p>Install once for your user account and the command is available in every repo you open with Claude Code.</p>
-        <div class="cmd"><span class="p">$</span><code>npx degit Itzkiro/Raid-Contractor-Marketing-Wesbite-Themes/skills/seasonal-theme ~/.claude/skills/seasonal-theme</code><button class="copy" type="button">Copy</button></div>
-      </div>
-      <div class="card" style="margin-top:1.25rem">
-        <h3>Check that it loaded</h3>
-        <p>Start <code>claude</code> in the project and type <code>/</code>. <code>seasonal-theme</code> should be in the list. Or ask "what skills do you have?" If it isn't there, confirm the file is at <code>.claude/skills/seasonal-theme/SKILL.md</code> (not one folder deeper) and start a new session.</p>
-      </div>
+
+      <details style="margin-top:1.5rem"><summary>Installing from a local terminal instead</summary>
+        <p>From the root of the website repo:</p>
+        <div class="cmd"><span class="p">$</span><code>mkdir -p .claude/skills/seasonal-theme &amp;&amp; curl -fsSL https://raw.githubusercontent.com/Itzkiro/Raid-Contractor-Marketing-Wesbite-Themes/main/skills/seasonal-theme/SKILL.md -o .claude/skills/seasonal-theme/SKILL.md</code><button class="copy" type="button">Copy</button></div>
+        <p>Then commit and push it. Or use degit: <code style="white-space:normal;word-break:break-all">npx degit Itzkiro/Raid-Contractor-Marketing-Wesbite-Themes/skills/seasonal-theme .claude/skills/seasonal-theme</code></p>
+      </details>
     </div>
   </section>
 
