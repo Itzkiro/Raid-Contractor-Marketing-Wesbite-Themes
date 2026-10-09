@@ -9,206 +9,242 @@
 <meta property="og:description" content="One command in your Claude Code session. Falling snow, pumpkins or hearts, a promo bar and an offer card, all gone for every visitor on the end date with no redeploy.">
 <meta property="og:image" content="assets/screenshots/hero-christmas.png">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#FF4D00">
+<meta name="theme-color" content="#FFFDF5">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
-  :root { --o: #FF4D00; --k: #000000; --w: #FFFFFF; --pad: 16px; }
-  @media (min-width: 720px) { :root { --pad: 40px; } }
+  :root {
+    --bg: #FFFDF5; --fg: #1E293B; --muted: #F1F5F9; --muted-fg: #64748B;
+    --accent: #8B5CF6; --accent-fg: #FFFFFF; --pink: #F472B6; --yellow: #FBBF24; --mint: #34D399;
+    --border: #E2E8F0; --card: #FFFFFF; --ring: #8B5CF6;
+    --r-sm: 8px; --r-md: 16px; --r-lg: 24px; --r-full: 9999px;
+    --pop: 4px 4px 0 0 var(--fg); --pop-hover: 6px 6px 0 0 var(--fg); --pop-active: 2px 2px 0 0 var(--fg);
+    --bounce: cubic-bezier(.34, 1.56, .64, 1);
+    --pad: 16px;
+  }
+  @media (min-width: 720px) { :root { --pad: 32px; } }
+  @media (max-width: 719px) { :root { --pop: 2px 2px 0 0 var(--fg); --pop-hover: 3px 3px 0 0 var(--fg); --pop-active: 1px 1px 0 0 var(--fg); } }
+
   * { box-sizing: border-box; }
-  html { scroll-behavior: smooth; scroll-padding-top: 88px; }
-  body { margin: 0; background: var(--o); color: var(--k); font: 16px/1.6 Inter, ui-sans-serif, system-ui, sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
-  ::selection { background: var(--k); color: var(--o); }
+  html { scroll-behavior: smooth; scroll-padding-top: 84px; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 400 16px/1.65 "Plus Jakarta Sans", system-ui, sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  ::selection { background: var(--yellow); color: var(--fg); }
   img { max-width: 100%; height: auto; display: block; }
-  a { color: inherit; }
+  a { color: var(--accent); font-weight: 500; }
+  h1, h2, h3, h4 { font-family: Outfit, system-ui, sans-serif; font-weight: 800; letter-spacing: -.02em; line-height: 1.08; margin: 0; }
+  code, pre { font-family: "JetBrains Mono", ui-monospace, monospace; }
+  :not(pre):not(.cmd) > code { font-size: .85em; background: var(--muted); border: 2px solid var(--border); padding: .02em .4em; border-radius: var(--r-sm); overflow-wrap: anywhere; }
+  :focus-visible { outline: 3px solid var(--ring); outline-offset: 3px; border-radius: 6px; }
+  .wrap { max-width: 1152px; margin: 0 auto; padding: 0 var(--pad); position: relative; }
+  .dots { background-image: radial-gradient(var(--fg) 1.2px, transparent 1.3px); background-size: 22px 22px; }
 
-  .disp { font-family: "Archivo Black", Impact, sans-serif; text-transform: uppercase; letter-spacing: -.04em; line-height: .88; font-weight: 400; }
-  .mono { font-family: "Space Mono", ui-monospace, monospace; letter-spacing: -.02em; }
-  code, pre { font-family: "Space Mono", ui-monospace, monospace; letter-spacing: -.02em; }
-  :not(pre):not(.cmd) > code { font-size: .86em; background: var(--k); color: var(--o); padding: .05em .4em; overflow-wrap: anywhere; }
-  .dark :not(pre):not(.cmd) > code { background: var(--w); color: var(--k); }
-  .wrap { padding: 0 var(--pad); max-width: 1440px; margin: 0 auto; }
+  /* icons: always enclosed in a shape */
+  .ic { width: 48px; height: 48px; border-radius: var(--r-full); border: 2px solid var(--fg); display: inline-grid; place-items: center; flex: none; color: #fff; }
+  .ic svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+  .ic.sm { width: 30px; height: 30px; } .ic.sm svg { width: 15px; height: 15px; }
+  .bg-v { background: var(--accent); } .bg-p { background: var(--pink); } .bg-y { background: var(--yellow); color: var(--fg); } .bg-m { background: var(--mint); color: var(--fg); }
+  .ic:hover svg, .card:hover .ic svg { animation: wiggle .5s ease-in-out; }
+  @keyframes wiggle { 0%,100% { transform: rotate(0); } 33% { transform: rotate(3deg); } 66% { transform: rotate(-3deg); } }
 
-  /* ---------- floating nav ---------- */
-  .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px var(--pad); pointer-events: none; }
-  .nav > * { pointer-events: auto; }
-  .logo { display: flex; align-items: center; gap: 8px; text-decoration: none; font-family: "Archivo Black", sans-serif; text-transform: uppercase; letter-spacing: -.04em; font-size: 15px; }
-  .logo b { width: 34px; height: 34px; background: var(--k); color: var(--o); display: grid; place-items: center; font-size: 16px; border-radius: 999px; }
-  .logo span { display: none; }
-  @media (min-width: 900px) { .logo span { display: inline; } }
-  .pill { display: flex; gap: 2px; background: var(--k); border-radius: 999px; padding: 5px; box-shadow: 0 10px 30px -10px rgba(0,0,0,.6); }
-  .pill a { font: 700 12px/1 "Space Mono", monospace; letter-spacing: -.02em; text-transform: uppercase; color: var(--w); text-decoration: none; padding: 10px 14px; border-radius: 999px; transition: background .2s, color .2s; white-space: nowrap; }
-  .pill a:hover, .pill a:focus-visible { background: var(--w); color: var(--k); }
-  .pill .x { display: none; }
-  @media (min-width: 760px) { .pill .x { display: inline-block; } }
-  @media (max-width: 400px) { .pill a { padding: 9px 10px; font-size: 11px; } }
-  .socials { display: flex; gap: 8px; }
-  .socials a { width: 38px; height: 38px; border: 2px solid var(--k); border-radius: 999px; display: grid; place-items: center; background: var(--o); transition: transform .2s; }
-  .socials a:hover { transform: scale(1.1); }
-  .socials svg { width: 18px; height: 18px; }
+  /* nav */
+  .nav { position: sticky; top: 0; z-index: 50; background: var(--bg); border-bottom: 2px solid var(--fg); }
+  .nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 68px; gap: 12px; }
+  .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--fg); font: 800 1.2rem Outfit, sans-serif; letter-spacing: -.02em; white-space: nowrap; }
+  .logo .ic { width: 38px; height: 38px; font-size: 18px; color: var(--fg); }
+  .links { display: flex; align-items: center; gap: 4px; }
+  .links a.l { color: var(--fg); text-decoration: none; font-weight: 500; font-size: .93rem; padding: 8px 12px; border-radius: var(--r-full); transition: background .3s var(--bounce); display: none; }
+  .links a.l:hover { background: var(--muted); }
+  @media (min-width: 900px) { .links a.l { display: inline-block; } }
+  @media (max-width: 440px) { .links .btn.ghost { display: none; } }
 
-  /* ---------- hero ---------- */
-  .hero { min-height: 100svh; display: flex; flex-direction: column; justify-content: flex-end; padding-top: 96px; }
-  .hero h1 { font-size: 16vw; margin: 0; text-align: center; }
-  .hero .lede { max-width: 46rem; margin: 2rem auto 2.5rem; text-align: center; font-size: clamp(1rem, 1.6vw, 1.2rem); font-weight: 500; padding: 0 var(--pad); }
-  .meta { border-top: 2px solid var(--k); display: grid; grid-template-columns: 1fr; gap: 1.5rem; align-items: center; padding: 1.5rem var(--pad) 2rem; }
-  @media (min-width: 760px) { .meta { grid-template-columns: 1fr auto 1fr; } }
-  .meta .l, .meta .r { font: 700 12px/1.5 "Space Mono", monospace; letter-spacing: -.02em; text-transform: uppercase; }
-  .meta .r { text-align: left; }
-  @media (min-width: 760px) { .meta .r { text-align: right; } }
-  .meta .l small, .meta .r small { display: block; font-weight: 400; opacity: .75; }
+  /* buttons */
+  .btn { display: inline-flex; align-items: center; gap: 10px; min-height: 48px; padding: 8px 10px 8px 22px; border-radius: var(--r-full); border: 2px solid var(--fg); font: 700 1rem "Plus Jakarta Sans", sans-serif; text-decoration: none; cursor: pointer; transition: transform .3s var(--bounce), box-shadow .3s var(--bounce), background .3s var(--bounce); }
+  .btn.primary { background: var(--accent); color: var(--accent-fg); box-shadow: var(--pop); }
+  .btn.primary:hover { transform: translate(-2px, -2px); box-shadow: var(--pop-hover); }
+  .btn.primary:active { transform: translate(2px, 2px); box-shadow: var(--pop-active); }
+  .btn.primary .dot { width: 32px; height: 32px; border-radius: var(--r-full); background: #fff; color: var(--accent); display: grid; place-items: center; }
+  .btn.primary .dot svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+  .btn.ghost { background: transparent; color: var(--fg); padding: 8px 22px; }
+  .btn.ghost:hover { background: var(--yellow); }
+  .btn.small { min-height: 42px; font-size: .9rem; padding: 6px 8px 6px 16px; }
+  .btn.small.ghost { padding: 6px 16px; }
+  .btn.small .dot { width: 26px; height: 26px; }
 
-  .spin { width: 144px; height: 144px; position: relative; margin: 0 auto; display: block; text-decoration: none; }
-  .spin svg.ring { width: 100%; height: 100%; animation: rot 12s linear infinite; }
-  .spin text { font: 700 9px "Space Mono", monospace; text-transform: uppercase; letter-spacing: .12em; fill: var(--k); }
-  .spin .arrow { position: absolute; inset: 0; display: grid; place-items: center; }
-  .spin .arrow svg { width: 28px; height: 28px; }
-  @keyframes rot { to { transform: rotate(360deg); } }
+  /* hero */
+  .hero { position: relative; padding: 72px 0 96px; overflow: hidden; }
+  .hero .wrap { display: grid; grid-template-columns: 1fr; gap: 56px; align-items: center; }
+  @media (min-width: 960px) { .hero .wrap { grid-template-columns: 1fr 1.05fr; } }
+  .hero .wrap > * { min-width: 0; }
+  .hero .txt { position: relative; z-index: 1; }
+  .sun { position: absolute; width: 560px; height: 560px; border-radius: 50%; background: var(--yellow); left: -200px; top: -140px; z-index: -1; border: 2px solid var(--fg); }
+  .eyebrow { display: inline-flex; align-items: center; gap: 8px; background: #fff; border: 2px solid var(--fg); border-radius: var(--r-full); padding: 6px 14px 6px 6px; font-weight: 700; font-size: .85rem; box-shadow: var(--pop); }
+  .hero h1 { font-size: clamp(2.6rem, 5.2vw, 4.4rem); margin: 22px 0 20px; }
+  .squig { position: relative; display: inline-block; }
+  .squig svg { position: absolute; left: 0; bottom: -14px; width: 100%; height: 18px; overflow: visible; }
+  .squig path { fill: none; stroke: var(--pink); stroke-width: 5; stroke-linecap: round; }
+  .hero p.lead { font-size: 1.15rem; font-weight: 500; max-width: 34rem; margin: 0 0 30px; }
+  .ctas { display: flex; gap: 14px; flex-wrap: wrap; }
+  .art { position: relative; }
+  .art .pat { position: absolute; inset: 28px -18px -22px 28px; border-radius: var(--r-lg); z-index: 0; opacity: .5; }
+  .blob { position: relative; z-index: 1; border: 2px solid var(--fg); border-radius: 48px 48px 48px 0; overflow: hidden; box-shadow: 8px 8px 0 0 var(--fg); background: #fff; }
+  .blob .cap { display: flex; align-items: center; gap: 8px; padding: 10px 16px; border-bottom: 2px solid var(--fg); font: 600 .74rem "JetBrains Mono", monospace; background: var(--muted); }
+  .blob .cap span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .blob .cap i { width: 11px; height: 11px; border-radius: 50%; border: 2px solid var(--fg); flex: none; }
 
-  /* ---------- buttons ---------- */
-  .btn { display: inline-flex; align-items: center; gap: .6rem; padding: 14px 26px; border: 2px solid var(--k); border-radius: 999px; font: 700 13px/1 "Space Mono", monospace; letter-spacing: -.02em; text-transform: uppercase; text-decoration: none; transition: transform .2s, background .2s, color .2s; }
-  .btn.solid { background: var(--k); color: var(--w); }
-  .btn.line { background: transparent; color: var(--k); }
-  .btn:hover { transform: translateX(16px); }
-  .btn.line:hover { background: var(--k); color: var(--o); }
+  /* confetti */
+  .cf { position: absolute; z-index: 0; pointer-events: none; }
+  .cf.tri { width: 0; height: 0; border-left: 18px solid transparent; border-right: 18px solid transparent; border-bottom: 30px solid var(--pink); }
+  .cf.cir { width: 26px; height: 26px; border-radius: 50%; background: var(--mint); border: 2px solid var(--fg); }
+  .cf.sq { width: 22px; height: 22px; background: var(--accent); border: 2px solid var(--fg); transform: rotate(18deg); }
+  .cf.pill { width: 60px; height: 20px; border-radius: 999px; background: var(--yellow); border: 2px solid var(--fg); transform: rotate(-24deg); }
+  .cf.ring { width: 40px; height: 40px; border-radius: 50%; border: 5px solid var(--accent); }
+  @media (max-width: 719px) { .cf, .sun { display: none; } }
 
-  /* ---------- hero screenshot ---------- */
-  .frame { border: 2px solid var(--k); background: var(--k); }
-  .frame .cap { display: flex; justify-content: space-between; gap: 1rem; padding: 10px 14px; color: var(--w); font: 400 12px/1.4 "Space Mono", monospace; letter-spacing: -.02em; }
-  .frame .cap span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .frame .cap span:last-child { color: var(--o); white-space: nowrap; }
-
-  /* ---------- skewed marquee ---------- */
-  .marq { background: var(--k); transform: skewY(-2deg); margin: 8vw 0; padding: 3vw 0; overflow: hidden; }
-  .row { display: flex; width: max-content; white-space: nowrap; animation: slide 40s linear infinite; }
-  .row.rev { animation-direction: reverse; animation-duration: 55s; }
-  .row span { padding-right: 3vw; }
-  .row.a { font-size: 10vw; color: var(--o); }
-  .row.b { font-size: 5vw; color: rgba(255,255,255,.8); margin-top: 1vw; }
+  /* marquee */
+  .marq { background: var(--accent); color: #fff; border-top: 2px solid var(--fg); border-bottom: 2px solid var(--fg); overflow: hidden; padding: 16px 0; }
+  .row { display: flex; width: max-content; animation: slide 36s linear infinite; }
+  .row span { font: 800 1.5rem Outfit, sans-serif; white-space: nowrap; padding-right: 24px; }
+  .row b { color: var(--yellow); padding: 0 12px; }
   @keyframes slide { to { transform: translateX(-50%); } }
 
-  /* ---------- sections ---------- */
-  section.s { padding: 96px 0; border-top: 2px solid var(--k); }
-  section.dark { background: var(--k); color: var(--w); border-top: 0; }
-  .label { font: 700 12px/1 "Space Mono", monospace; letter-spacing: -.02em; text-transform: uppercase; display: inline-flex; gap: .6rem; align-items: center; }
-  .label::before { content: ""; width: 10px; height: 10px; background: currentColor; border-radius: 999px; }
-  .dark .label { color: var(--o); }
-  h2.disp { font-size: clamp(2.6rem, 9vw, 8.5rem); margin: 1rem 0 1.5rem; }
-  h3.disp { font-size: clamp(1.4rem, 3vw, 2.4rem); margin: 0 0 .8rem; }
-  .intro { max-width: 46rem; font-size: 1.08rem; font-weight: 500; margin: 0 0 2.5rem; }
-  .dark .intro { color: rgba(255,255,255,.75); font-weight: 400; }
-  .note { font: 400 12px/1.6 "Space Mono", monospace; letter-spacing: -.02em; margin: .75rem 0 0; }
+  /* sections */
+  section.s { padding: 96px 0; position: relative; }
+  section.tint { background: #fff; border-top: 2px solid var(--fg); border-bottom: 2px solid var(--fg); }
+  .kicker { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 14px; }
+  .kicker::before { content: ""; width: 14px; height: 14px; border-radius: 50%; background: var(--k, var(--pink)); border: 2px solid var(--fg); }
+  h2 { font-size: clamp(2rem, 4.4vw, 3.2rem); margin-bottom: 16px; }
+  h2 .hl { background: linear-gradient(transparent 58%, var(--hl, var(--yellow)) 58%); padding: 0 4px; }
+  h3 { font-size: 1.4rem; margin-bottom: 8px; }
+  .intro { max-width: 44rem; font-size: 1.08rem; color: #334155; margin: 0 0 44px; }
+  .note { font-size: .85rem; color: var(--muted-fg); margin: 10px 0 0; }
+  .divider { display: block; margin: 0 auto; width: min(560px, 80%); height: 24px; }
+  .divider path { fill: none; stroke: var(--accent); stroke-width: 4; stroke-linecap: round; }
 
-  /* ---------- service list ---------- */
-  .svc { list-style: none; margin: 0; padding: 0; border-bottom: 1px solid rgba(255,255,255,.2); }
-  .svc li { border-top: 1px solid rgba(255,255,255,.2); display: grid; grid-template-columns: 56px 1fr auto; gap: 1rem; align-items: center; padding: 28px 0; transition: background .25s; }
-  @media (min-width: 720px) { .svc li { grid-template-columns: 110px 1fr 120px; padding: 36px 0; } }
-  .svc li:hover { background: rgba(255,255,255,.05); }
-  .svc .n { font: 700 14px "Space Mono", monospace; color: var(--o); align-self: start; padding-top: .5rem; }
-  .svc .t { font-size: clamp(2rem, 7vw, 6.5rem); transition: transform .3s; }
-  .svc.sm .t { font-size: clamp(1.4rem, 3.6vw, 3rem); }
-  .svc li:hover .t { transform: translateX(16px); }
-  .svc p { margin: .8rem 0 0; color: rgba(255,255,255,.72); max-width: 44rem; transition: transform .3s; }
-  .svc li:hover p { transform: translateX(16px); }
-  .tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 1rem; }
-  .tags span { border: 1px solid rgba(255,255,255,.45); border-radius: 999px; padding: 5px 12px; font: 400 11px/1 "Space Mono", monospace; text-transform: uppercase; letter-spacing: -.02em; }
-  .svc .ar { color: var(--o); opacity: 0; transition: opacity .3s, transform .3s; justify-self: end; }
-  .svc .ar svg { width: clamp(36px, 6vw, 88px); height: auto; }
-  .svc li:hover .ar { opacity: 1; transform: rotate(45deg); }
+  /* cards */
+  .card { background: var(--card); border: 2px solid var(--fg); border-radius: var(--r-md); padding: 26px; box-shadow: 8px 8px 0 0 var(--border); transition: transform .3s var(--bounce), box-shadow .3s var(--bounce); position: relative; min-width: 0; }
+  .card:hover { transform: rotate(-1deg) scale(1.02); }
+  .card.feat { box-shadow: 8px 8px 0 0 var(--pink); }
+  .card p { margin: 0; color: #334155; }
+  .card.top { padding-top: 46px; margin-top: 26px; }
+  .card.top > .ic { position: absolute; top: -26px; left: 24px; width: 52px; height: 52px; }
+  @media (max-width: 719px) { .card { box-shadow: 4px 4px 0 0 var(--border); } .card.feat { box-shadow: 4px 4px 0 0 var(--pink); } }
+  .g3 { display: grid; gap: 28px; grid-template-columns: 1fr; position: relative; }
+  @media (min-width: 900px) { .g3 { grid-template-columns: repeat(3, 1fr); } }
+  .g2 { display: grid; gap: 28px; grid-template-columns: 1fr; }
+  @media (min-width: 900px) { .g2 { grid-template-columns: 1fr 1fr; } }
+  .g2 > *, .g3 > * { min-width: 0; }
+  .connect { position: absolute; left: 8%; right: 8%; top: 50%; height: 4px; z-index: -1; display: none; }
+  @media (min-width: 900px) { .connect { display: block; } }
+  .connect line { stroke: var(--fg); stroke-width: 2.5; stroke-dasharray: 10 10; }
+  .feature .hd { margin: -46px -26px 20px; padding: 40px 26px 18px; border-bottom: 2px solid var(--fg); border-radius: 14px 14px 0 0; }
+  .feature .hd h3 { margin: 0; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px; }
+  .tags span { border: 2px solid var(--fg); border-radius: var(--r-full); padding: 2px 10px; font-size: .75rem; font-weight: 700; background: var(--muted); }
 
-  /* ---------- steps ---------- */
-  .steps { border-top: 2px solid var(--k); }
-  .step { display: grid; grid-template-columns: 1fr; gap: .5rem 2rem; padding: 28px 0; border-bottom: 2px solid var(--k); }
-  @media (min-width: 860px) { .step { grid-template-columns: 140px 1fr; } }
-  .step .num { font-size: clamp(3rem, 6vw, 5rem); }
+  /* shots */
+  figure { margin: 0; }
+  figcaption { font-size: .88rem; color: var(--muted-fg); margin-top: 12px; }
+  .shot { border: 2px solid var(--fg); border-radius: var(--r-md); overflow: hidden; box-shadow: var(--pop); background: #fff; }
+
+  /* flow + steps */
+  .flow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 40px; }
+  .flow span { border: 2px solid var(--fg); border-radius: var(--r-full); padding: 6px 14px; font-weight: 700; font-size: .88rem; background: #fff; }
+  .flow span:nth-of-type(4n+1) { background: var(--accent); color: #fff; } .flow span:nth-of-type(4n+2) { background: var(--pink); }
+  .flow span:nth-of-type(4n+3) { background: var(--yellow); } .flow span:nth-of-type(4n) { background: var(--mint); }
+  .flow i { font-style: normal; font-weight: 800; }
+  .steps { display: grid; gap: 20px; }
+  .step { display: grid; grid-template-columns: 56px 1fr; gap: 18px; align-items: start; background: #fff; border: 2px solid var(--fg); border-radius: 24px 24px 24px 0; padding: 22px; }
+  .step .ic { width: 56px; height: 56px; font: 800 1.4rem Outfit, sans-serif; }
   .step > div { min-width: 0; }
-  .step p { margin: 0 0 .8rem; max-width: 52rem; }
+  .step p { margin: 0 0 10px; color: #334155; }
 
-  /* ---------- code blocks ---------- */
-  .cmd { display: flex; align-items: center; gap: .8rem; background: var(--k); color: var(--w); padding: 14px 16px; border: 2px solid var(--k); font-size: 13px; }
-  .cmd + .cmd { margin-top: 8px; }
-  .dark .cmd { border-color: rgba(255,255,255,.3); }
-  .cmd code { flex: 1; min-width: 0; overflow-x: auto; white-space: pre; background: none; color: inherit; padding: 0; font-size: inherit; scrollbar-width: thin; }
-  .cmd .p { color: var(--o); user-select: none; font-family: "Space Mono", monospace; }
-  .cmd.prompt { align-items: flex-start; padding: 20px; }
+  /* code */
+  .cmd { display: flex; align-items: center; gap: 12px; background: var(--fg); color: #E2E8F0; border: 2px solid var(--fg); border-radius: var(--r-sm); padding: 12px 14px; font-size: 13px; }
+  .cmd + .cmd { margin-top: 10px; }
+  .cmd code { flex: 1; min-width: 0; overflow-x: auto; white-space: pre; scrollbar-width: thin; }
+  .cmd .p { color: var(--yellow); user-select: none; font-family: "JetBrains Mono", monospace; }
+  .cmd.prompt { align-items: flex-start; padding: 20px; border-radius: var(--r-md); }
   .cmd.prompt code { line-height: 1.7; }
-  .copy { flex: none; background: var(--o); color: var(--k); border: 0; border-radius: 999px; font: 700 11px/1 "Space Mono", monospace; text-transform: uppercase; padding: 8px 14px; cursor: pointer; transition: transform .2s; }
-  .copy:hover { transform: scale(1.1); }
-  .copy.ok { background: var(--w); }
+  .copy { flex: none; background: var(--yellow); color: var(--fg); border: 2px solid var(--fg); border-radius: var(--r-full); font: 700 .75rem "Plus Jakarta Sans", sans-serif; padding: 6px 12px; cursor: pointer; box-shadow: 2px 2px 0 0 #000; transition: transform .3s var(--bounce); }
+  .copy:hover { transform: translate(-1px, -1px) scale(1.05); }
+  .copy.ok { background: var(--mint); }
 
-  /* ---------- tables ---------- */
-  .table { overflow-x: auto; border: 2px solid var(--k); }
+  /* tables */
+  .table { overflow-x: auto; border: 2px solid var(--fg); border-radius: var(--r-md); background: #fff; box-shadow: 8px 8px 0 0 var(--border); }
   table { border-collapse: collapse; width: 100%; font-size: .93rem; }
-  th, td { text-align: left; padding: 14px 16px; border-bottom: 2px solid var(--k); vertical-align: top; }
-  th { background: var(--k); color: var(--o); font: 700 12px/1.2 "Space Mono", monospace; letter-spacing: -.02em; text-transform: uppercase; white-space: nowrap; }
+  th, td { text-align: left; padding: 13px 16px; border-bottom: 2px solid var(--border); vertical-align: top; }
+  th { font: 700 .75rem "Plus Jakarta Sans", sans-serif; letter-spacing: .08em; text-transform: uppercase; background: var(--muted); border-bottom: 2px solid var(--fg); white-space: nowrap; }
   tr:last-child td { border-bottom: 0; }
   td code { white-space: nowrap; }
-  tbody tr { transition: background .2s; }
-  tbody tr:hover { background: rgba(0,0,0,.08); }
-  .sw { display: inline-flex; border: 2px solid var(--k); vertical-align: middle; margin-right: .4rem; }
-  .sw i { width: 18px; height: 18px; display: block; }
+  .sw { display: inline-flex; gap: 3px; vertical-align: middle; margin-right: 6px; }
+  .sw i { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--fg); display: block; }
 
-  /* ---------- grids ---------- */
-  .g2 { display: grid; grid-template-columns: 1fr; gap: 24px; }
-  @media (min-width: 900px) { .g2 { grid-template-columns: 1fr 1fr; } }
-  .g3 { display: grid; grid-template-columns: 1fr; gap: 0; border: 2px solid var(--k); }
-  @media (min-width: 900px) { .g3 { grid-template-columns: repeat(3, 1fr); } }
-  .g3 > div { padding: 24px; border-bottom: 2px solid var(--k); min-width: 0; }
-  .g3 > div:last-child { border-bottom: 0; }
-  @media (min-width: 900px) { .g3 > div { border-bottom: 0; border-right: 2px solid var(--k); } .g3 > div:last-child { border-right: 0; } }
-  .g3 h4 { font: 400 1.3rem/1 "Archivo Black", sans-serif; text-transform: uppercase; letter-spacing: -.04em; margin: 0 0 .7rem; }
-  .g3 p { margin: 0; }
-  .g2 > *, .g3 > * { min-width: 0; }
-  .recipe .k { font: 700 12px "Space Mono", monospace; text-transform: uppercase; letter-spacing: -.02em; margin-bottom: 8px; display: block; }
+  /* recipes */
+  .recipe .k { display: flex; align-items: center; gap: 8px; font-weight: 700; margin-bottom: 10px; font-size: .92rem; }
 
-  /* ---------- terminals ---------- */
-  .term { background: var(--k); color: var(--w); border: 2px solid var(--k); }
-  .term .bar { display: flex; justify-content: space-between; padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,.2); font: 700 11px "Space Mono", monospace; text-transform: uppercase; color: var(--o); }
+  /* terminals */
+  .term { background: var(--fg); color: #E2E8F0; border: 2px solid var(--fg); border-radius: var(--r-md); overflow: hidden; box-shadow: 8px 8px 0 0 var(--accent); }
+  .term .bar { display: flex; gap: 7px; align-items: center; padding: 10px 14px; background: #0F172A; }
+  .term .bar i { width: 12px; height: 12px; border-radius: 50%; }
+  .term .bar span { margin-left: 6px; font: 600 .72rem "JetBrains Mono", monospace; color: #94A3B8; }
   .term pre { margin: 0; padding: 18px; font-size: 12.5px; line-height: 1.7; overflow-x: auto; white-space: pre; }
-  .t-u { color: var(--w); font-weight: 700; } .t-d { color: rgba(255,255,255,.5); } .t-ok, .t-k { color: var(--o); } .t-b { color: var(--w); text-decoration: underline; text-decoration-color: var(--o); }
+  .t-u { color: #C4B5FD; font-weight: 600; } .t-d { color: #94A3B8; } .t-ok { color: var(--mint); } .t-k { color: var(--yellow); } .t-b { color: #F9A8D4; }
 
-  /* ---------- gallery ---------- */
-  .gallery { display: grid; grid-template-columns: 1fr; gap: 24px; }
+  /* gallery */
+  .gallery { display: grid; grid-template-columns: 1fr; gap: 28px; }
   @media (min-width: 700px) { .gallery { grid-template-columns: repeat(2, 1fr); } }
-  .gi { display: block; border: 2px solid var(--k); text-decoration: none; background: var(--k); color: var(--w); }
-  .gi .im { overflow: hidden; }
-  .gi img { width: 100%; aspect-ratio: 16/10; object-fit: cover; object-position: top; transition: transform .5s; }
-  .gi:hover img { transform: scale(1.1); }
-  .gi .lb { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 12px 16px; }
-  .gi .lb b { font: 400 1.4rem/1 "Archivo Black", sans-serif; text-transform: uppercase; letter-spacing: -.04em; transition: transform .3s; }
-  .gi:hover .lb b { transform: translateX(16px); color: var(--o); }
-  .gi .lb small { font-size: 1rem; }
+  @media (min-width: 1040px) { .gallery { grid-template-columns: repeat(3, 1fr); } }
+  .gi { display: block; text-decoration: none; color: var(--fg); background: #fff; border: 2px solid var(--fg); border-radius: var(--r-md); overflow: hidden; transition: transform .3s var(--bounce); }
+  .gi:hover { transform: rotate(-1deg) scale(1.02); }
+  .gi img { width: 100%; aspect-ratio: 16/10; object-fit: cover; object-position: top; border-bottom: 2px solid var(--fg); }
+  .gi .lb { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 16px; }
+  .gi .lb b { font: 800 1.15rem Outfit, sans-serif; }
 
-  /* ---------- figures ---------- */
-  figure { margin: 0; }
-  figcaption { font: 400 12px/1.6 "Space Mono", monospace; letter-spacing: -.02em; margin-top: 10px; }
-  .shot { border: 2px solid var(--k); background: var(--k); }
-  .tag { display: inline-block; font: 700 11px/1 "Space Mono", monospace; text-transform: uppercase; padding: 8px 14px; border-radius: 999px; margin-bottom: 12px; border: 2px solid var(--k); }
-  .tag.on { background: var(--k); color: var(--o); }
-  .tag.off { background: var(--w); color: var(--k); }
-  .phone { max-width: 300px; }
+  /* badges */
+  .badge { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: .85rem; border: 2px solid var(--fg); border-radius: var(--r-full); padding: 4px 14px 4px 4px; margin-bottom: 14px; background: #fff; }
+  .phone { max-width: 290px; margin: 0 auto; }
 
-  /* ---------- faq ---------- */
-  details { border-top: 2px solid var(--k); padding: 22px 0; }
-  details:last-of-type { border-bottom: 2px solid var(--k); }
-  summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; gap: 1rem; font: 400 clamp(1.2rem, 2.6vw, 2rem)/1 "Archivo Black", sans-serif; text-transform: uppercase; letter-spacing: -.04em; transition: transform .3s; }
+  /* rules */
+  .rules { display: grid; gap: 18px; grid-template-columns: 1fr; }
+  @media (min-width: 760px) { .rules { grid-template-columns: 1fr 1fr; } }
+  .rule { display: flex; gap: 16px; align-items: flex-start; background: #fff; border: 2px solid var(--fg); border-radius: var(--r-md); padding: 18px; transition: transform .3s var(--bounce); }
+  .rule:hover { transform: rotate(-1deg) scale(1.02); }
+  .rule b { font: 800 1.1rem Outfit, sans-serif; display: block; margin-bottom: 2px; }
+  .rule span { color: #334155; font-size: .93rem; }
+
+  /* faq */
+  details { background: #fff; border: 2px solid var(--fg); border-radius: var(--r-md); padding: 18px 22px; transition: box-shadow .3s var(--bounce); }
+  details + details { margin-top: 14px; }
+  details[open] { box-shadow: var(--pop); }
+  summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 12px; font: 800 1.15rem Outfit, sans-serif; }
   summary::-webkit-details-marker { display: none; }
-  summary::after { content: "+"; font-family: "Space Mono", monospace; }
-  details[open] summary::after { content: "–"; }
-  summary:hover { transform: translateX(16px); }
-  details p { max-width: 52rem; margin: 1rem 0 0; }
+  summary::after { content: "+"; width: 32px; height: 32px; flex: none; border-radius: 50%; border: 2px solid var(--fg); background: var(--yellow); display: grid; place-items: center; font-size: 1.2rem; transition: transform .3s var(--bounce); }
+  details[open] summary::after { transform: rotate(45deg); background: var(--pink); }
+  details p { margin: 12px 0 0; color: #334155; }
 
-  /* ---------- cta / footer ---------- */
-  .cta { text-align: center; padding: 120px 0 100px; border-top: 2px solid var(--k); }
-  .cta h2 { font-size: 14vw; margin: 0 0 3rem; }
-  .big { display: inline-flex; align-items: center; gap: .8rem; background: var(--k); color: var(--w); border-radius: 999px; padding: 26px 48px; font: 700 clamp(14px, 1.6vw, 18px)/1 "Space Mono", monospace; text-transform: uppercase; letter-spacing: -.02em; text-decoration: none; transition: transform .25s; }
-  .big:hover { transform: scale(1.1); }
-  .cta .sub { margin-top: 1.5rem; }
-  footer { border-top: 2px solid var(--k); padding: 24px var(--pad) 32px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; font: 400 12px/1.4 "Space Mono", monospace; letter-spacing: -.02em; text-transform: uppercase; }
-  footer nav { display: flex; gap: 1.25rem; flex-wrap: wrap; }
-  footer a { text-decoration: none; transition: transform .2s; display: inline-block; }
-  footer a:hover { transform: translateX(4px); text-decoration: underline; }
+  /* cta */
+  .cta { position: relative; background: var(--accent); color: #fff; border: 2px solid var(--fg); border-radius: 40px 40px 40px 0; padding: 64px 28px; text-align: center; box-shadow: 10px 10px 0 0 var(--fg); }
+  .cta h2 { font-size: clamp(2.4rem, 6vw, 4.4rem); color: #fff; }
+  .cta p { font-size: 1.1rem; max-width: 36rem; margin: 0 auto 30px; color: #EDE9FE; }
+  .cta .btn.primary { background: var(--yellow); color: var(--fg); }
+  .cta .btn.primary .dot { color: var(--fg); }
+  .cta .btn.ghost { color: #fff; border-color: #fff; }
+  .cta .btn.ghost:hover { color: var(--fg); border-color: var(--fg); }
+  .star { position: absolute; top: -46px; right: 6%; width: 130px; height: 130px; transform: rotate(15deg); display: grid; place-items: center; }
+  .star svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .star svg path { fill: var(--yellow); stroke: var(--fg); stroke-width: 2.5; stroke-linejoin: round; }
+  .star span { position: relative; font: 800 .82rem/1.05 Outfit, sans-serif; color: var(--fg); text-align: center; text-transform: uppercase; }
+  @media (max-width: 719px) { .star { width: 96px; height: 96px; top: -40px; right: 8px; } .star span { font-size: .66rem; } .cta { box-shadow: 4px 4px 0 0 var(--fg); } }
+
+  footer { border-top: 2px solid var(--fg); padding: 28px 0 40px; font-size: .9rem; margin-top: 96px; background: #fff; }
+  footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 14px; align-items: center; }
+  footer nav { display: flex; gap: 16px; flex-wrap: wrap; }
+  footer a { color: var(--fg); }
+
+  /* pop-in entrance (enabled by JS only, and only without reduced motion) */
+  .js-pop .pop { transform: scale(.6); opacity: 0; transition: transform .6s var(--bounce), opacity .4s ease; }
+  .js-pop .pop.in { transform: none; opacity: 1; }
 
   /* weather on the docs page itself, using the skill's own technique */
   .docs-snow { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 30; }
@@ -217,109 +253,119 @@
 
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
-    .row, .spin svg.ring { animation: none; }
+    .row { animation: none; }
     .docs-snow { display: none; }
-    *, *::before, *::after { transition: none !important; }
+    *, *::before, *::after { transition: none !important; animation: none !important; }
   }
 </style>
 </head>
 <body>
 
 <header class="nav">
-  <a class="logo" href="#top" aria-label="seasonal-theme home"><b>❄</b><span>Seasonal-Theme</span></a>
-  <nav class="pill" aria-label="Sections">
-    <a href="#install">Install</a>
-    <a href="#commands">Commands</a>
-    <a class="x" href="#seasons">Seasons</a>
-    <a class="x" href="#safety">Safety</a>
-    <a href="demo/">Demo</a>
-  </nav>
-  <div class="socials">
-    <a href="https://github.com/Itzkiro/Raid-Contractor-Marketing-Wesbite-Themes" aria-label="Source on GitHub">
-      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.33-1.28-1.69-1.28-1.69-1.05-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.26 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5Z"/></svg>
-    </a>
+  <div class="wrap">
+    <a class="logo" href="#top"><span class="ic bg-y">❄</span>seasonal-theme</a>
+    <nav class="links" aria-label="Sections">
+      <a class="l" href="#install">Install</a>
+      <a class="l" href="#commands">Commands</a>
+      <a class="l" href="#seasons">Seasons</a>
+      <a class="l" href="#safety">Safety</a>
+      <a class="btn ghost small" href="https://github.com/Itzkiro/Raid-Contractor-Marketing-Wesbite-Themes">GitHub</a>
+      <a class="btn primary small" href="demo/">Demo <span class="dot"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></a>
+    </nav>
   </div>
 </header>
 
 <main id="top">
   <!-- HERO -->
   <section class="hero">
-    <h1 class="disp">Seasonal<br>Themes</h1>
-    <p class="lede">A Claude Code skill for websites on GitHub + Vercel. Type one command into your Claude Code session to add falling snow, pumpkins or hearts, a promo bar and an offer card. A date hardcoded into the code turns it all off for every visitor at the end date, with no redeploy.</p>
-    <div class="meta">
-      <div class="l">Built for<small>GitHub repos · Vercel deploys · Claude Code cloud sessions</small></div>
-      <a class="spin" href="#install" aria-label="Scroll down to installation">
-        <svg class="ring" viewBox="0 0 144 144" aria-hidden="true">
-          <defs><path id="circ" d="M72,72 m-58,0 a58,58 0 1,1 116,0 a58,58 0 1,1 -116,0"/></defs>
-          <text><textPath href="#circ">Scroll Down • Scroll Down • Scroll Down • Scroll Down • </textPath></text>
-        </svg>
-        <span class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square" aria-hidden="true"><path d="M12 5v14M19 12l-7 7-7-7"/></svg></span>
-      </a>
-      <div class="r">Claude Code skill<small>Self-expiring holiday themes<br>10 seasons · MIT licensed</small></div>
-    </div>
-  </section>
-
-  <!-- HERO SHOT -->
-  <section class="wrap" style="padding-bottom: 24px">
-    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:24px">
-      <a class="btn solid" href="#install">Install the skill →</a>
-      <a class="btn line" href="demo/">Open the live demo</a>
-    </div>
-    <figure class="frame">
-      <div class="cap"><span>&gt; /seasonal-theme christmas --density high --promo "Holiday deal: first month $1"</span><span>● LIVE UNTIL DEC 26</span></div>
-      <img src="assets/screenshots/hero-christmas.png" width="1280" height="800" alt="A demo website with Christmas emoji falling over the page and a dark navy and green announcement bar reading 'Holiday deal: first month $1'.">
-    </figure>
-  </section>
-
-  <!-- MARQUEE -->
-  <div class="marq" aria-hidden="true">
-    <div class="row a disp" id="m1"></div>
-    <div class="row b rev disp" id="m2"></div>
-  </div>
-
-  <!-- WHAT IT INSTALLS -->
-  <section class="s dark">
+    <span class="cf tri" style="top:90px;right:46%"></span>
+    <span class="cf cir" style="top:60px;right:6%"></span>
+    <span class="cf sq" style="bottom:70px;left:40%"></span>
+    <span class="cf pill" style="bottom:48px;right:10%"></span>
+    <span class="cf ring" style="top:44%;left:3%"></span>
     <div class="wrap">
-      <span class="label">What it installs</span>
-      <h2 class="disp">Three layers.<br>One date gate.</h2>
-      <p class="intro">Each layer works on its own. All three check the same cutoff timestamp, so they appear together and disappear together.</p>
-      <ul class="svc">
-        <li><span class="n">01</span><div><div class="t disp">Weather</div><p>Falling emoji particles over every page, like the classic WordPress "falling elements" plugins. Pure CSS animation: no library, no network request.</p><div class="tags"><span>Pure CSS</span><span>pointer-events: none</span><span>Half on phones</span></div></div><span class="ar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><path d="M12 19V5M5 12l7-7 7 7"/></svg></span></li>
-        <li><span class="n">02</span><div><div class="t disp">Promo bar</div><p>Your existing announcement bar gets a seasonal gradient and promo headline. Your normal bar is the fallback branch, so it comes back automatically after the end date.</p><div class="tags"><span>Re-skin</span><span>Auto-revert</span><span>--promo</span></div></div><span class="ar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><path d="M12 19V5M5 12l7-7 7 7"/></svg></span></li>
-        <li><span class="n">03</span><div><div class="t disp">Offer card</div><p>A promo card on your offers or landing page, with price, commitment, exclusions and end date printed right beside the claim.</p><div class="tags"><span>Terms beside claim</span><span>--terms</span><span>FTC-defensible</span></div></div><span class="ar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><path d="M12 19V5M5 12l7-7 7 7"/></svg></span></li>
-      </ul>
-      <div class="g2" style="margin-top:48px">
-        <figure><div class="shot"><img src="assets/screenshots/offer-card-halloween.png" loading="lazy" width="1280" height="800" alt="Offers section with a Halloween offer card first, showing the headline and an Offer terms list, next to two regular plan cards."></div><figcaption>Offer card: the terms sit on the same card as the headline.</figcaption></figure>
-        <figure><div class="shot"><img src="assets/screenshots/season-halloween.png" loading="lazy" width="1280" height="800" alt="Top of the demo page with Halloween emoji falling and the purple announcement bar showing a promo headline."></div><figcaption>Promo bar + weather on the Halloween theme.</figcaption></figure>
+      <div class="txt">
+        <div class="sun" aria-hidden="true"></div>
+        <span class="eyebrow"><span class="ic sm bg-v"><svg viewBox="0 0 24 24"><path d="m12 3-1.9 5.8L4 10l4.9 3.6L7.1 20 12 16.3 16.9 20l-1.8-6.4L20 10l-6.1-1.2Z"/></svg></span>Claude Code skill · MIT</span>
+        <h1>Holiday themes that <span class="squig">switch themselves off.<svg viewBox="0 0 300 18" preserveAspectRatio="none" aria-hidden="true"><path d="M2 10 Q 20 0 38 10 T 74 10 T 110 10 T 146 10 T 182 10 T 218 10 T 254 10 T 298 10"/></svg></span></h1>
+        <p class="lead">A Claude Code skill for websites on GitHub + Vercel. Type one command into your Claude Code session to add falling snow, pumpkins or hearts, a promo bar and an offer card. A date hardcoded into the code turns it all off for every visitor at the end date, with no redeploy.</p>
+        <div class="ctas">
+          <a class="btn primary" href="#install">Install the skill <span class="dot"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></a>
+          <a class="btn ghost" href="demo/">Open the live demo</a>
+        </div>
+      </div>
+      <div class="art">
+        <div class="pat dots" aria-hidden="true"></div>
+        <figure class="blob">
+          <div class="cap"><i style="background:var(--pink)"></i><i style="background:var(--yellow)"></i><i style="background:var(--mint)"></i><span>/seasonal-theme christmas --density high --promo "Holiday deal: first month $1"</span></div>
+          <img src="assets/screenshots/hero-christmas.png" width="1280" height="800" alt="A demo website with Christmas emoji falling over the page and a dark navy and green announcement bar reading 'Holiday deal: first month $1'.">
+        </figure>
       </div>
     </div>
   </section>
 
+  <!-- MARQUEE -->
+  <div class="marq" aria-hidden="true"><div class="row" id="m1"></div></div>
+
+  <!-- WHAT IT INSTALLS -->
+  <section class="s">
+    <div class="wrap">
+      <span class="kicker" style="--k:var(--accent)">What it installs</span>
+      <h2>Three layers, <span class="hl">one date gate</span></h2>
+      <p class="intro">Each layer works on its own. All three check the same cutoff timestamp, so they appear together and disappear together.</p>
+      <div class="g3">
+        <svg class="connect" preserveAspectRatio="none" viewBox="0 0 100 4" aria-hidden="true"><line x1="0" y1="2" x2="100" y2="2"/></svg>
+        <div class="card top feature pop"><span class="ic bg-v"><svg viewBox="0 0 24 24"><path d="M4 14.9A7 7 0 1 1 15.7 8h1.8a4.5 4.5 0 0 1 2.5 8.2"/><path d="M8 15h.01M8 19h.01M12 17h.01M12 21h.01M16 15h.01M16 19h.01"/></svg></span>
+          <div class="hd" style="background:#EDE9FE"><h3>Weather effect</h3></div>
+          <p>Falling emoji particles over every page, like the classic WordPress "falling elements" plugins. Pure CSS animation: no library, no network request.</p>
+          <div class="tags"><span>Pure CSS</span><span>Click-through</span><span>Half on phones</span></div></div>
+        <div class="card top feature pop"><span class="ic bg-p"><svg viewBox="0 0 24 24"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg></span>
+          <div class="hd" style="background:#FCE7F3"><h3>Promo bar re-skin</h3></div>
+          <p>Your existing announcement bar gets a seasonal gradient and promo headline. Your normal bar is the fallback branch, so it comes back automatically after the end date.</p>
+          <div class="tags"><span>Re-skin</span><span>Auto-revert</span><span>--promo</span></div></div>
+        <div class="card top feature pop"><span class="ic bg-y"><svg viewBox="0 0 24 24"><path d="M12.6 2.6A2 2 0 0 0 11.2 2H4a2 2 0 0 0-2 2v7.2a2 2 0 0 0 .6 1.4l8.7 8.7a2.4 2.4 0 0 0 3.4 0l6.6-6.6a2.4 2.4 0 0 0 0-3.4z"/><circle cx="7.5" cy="7.5" r=".5"/></svg></span>
+          <div class="hd" style="background:#FEF3C7"><h3>Offer card</h3></div>
+          <p>A promo card on your offers or landing page, with price, commitment, exclusions and end date printed right beside the claim.</p>
+          <div class="tags"><span>Terms beside claim</span><span>--terms</span></div></div>
+      </div>
+      <div class="g2" style="margin-top:56px">
+        <figure class="pop"><div class="shot"><img src="assets/screenshots/offer-card-halloween.png" loading="lazy" width="1280" height="800" alt="Offers section with a Halloween offer card first, showing the headline and an Offer terms list, next to two regular plan cards."></div><figcaption>The offer card puts the terms on the same card as the headline.</figcaption></figure>
+        <figure class="pop"><div class="shot"><img src="assets/screenshots/season-halloween.png" loading="lazy" width="1280" height="800" alt="Top of the demo page with Halloween emoji falling and the purple announcement bar showing a promo headline."></div><figcaption>The promo bar and weather layer on the Halloween theme.</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <svg class="divider" viewBox="0 0 560 24" preserveAspectRatio="none" aria-hidden="true"><path d="M2 12 Q 22 0 42 12 T 82 12 T 122 12 T 162 12 T 202 12 T 242 12 T 282 12 T 322 12 T 362 12 T 402 12 T 442 12 T 482 12 T 522 12 T 558 12"/></svg>
+
   <!-- QUICK START -->
   <section class="s" id="quickstart">
     <div class="wrap">
-      <span class="label">Quick start</span>
-      <h2 class="disp">GitHub → Claude<br>→ Vercel.</h2>
+      <span class="kicker" style="--k:var(--pink)">Quick start</span>
+      <h2>Built for <span class="hl" style="--hl:#FBCFE8">GitHub + Vercel</span> sites run from Claude Code</h2>
       <p class="intro">Your site's code lives in a GitHub repo, Vercel deploys it, and you make changes from a <a href="https://claude.ai/code">Claude Code cloud session</a> (claude.ai/code or the Claude app) attached to that repo. Everything below happens in that session. There's no local terminal.</p>
+      <div class="flow" aria-label="Workflow"><span>GitHub repo</span><i>→</i><span>Claude Code session</span><i>→</i><span>push / PR</span><i>→</i><span>Vercel preview</span><i>→</i><span>merge to main</span><i>→</i><span>Vercel production</span></div>
       <div class="steps">
-        <div class="step"><div class="num disp">01</div><div><h3 class="disp">Install once</h3><p>Paste the <a href="#install">install prompt</a> into a session on your website repo. Claude adds one file, <code>.claude/skills/seasonal-theme/SKILL.md</code>, commits it and pushes. Merge that into <code>main</code>.</p></div></div>
-        <div class="step"><div class="num disp">02</div><div><h3 class="disp">Start a new session</h3><p>Skills are read when a session starts, so open a fresh one on the repo after the skill is on <code>main</code>.</p></div></div>
-        <div class="step"><div class="num disp">03</div><div><h3 class="disp">Ask for a season</h3><p>Type the slash command, or ask in plain words ("make it snow until New Year's").</p>
+        <div class="step pop"><span class="ic bg-v">1</span><div><h3>Install once</h3><p>Paste the <a href="#install">install prompt</a> into a session on your website repo. Claude adds one file, <code>.claude/skills/seasonal-theme/SKILL.md</code>, commits it and pushes. Merge that into <code>main</code>.</p></div></div>
+        <div class="step pop"><span class="ic bg-p">2</span><div><h3>Start a new session</h3><p>Skills are read when a session starts, so open a fresh one on the repo after the skill is on <code>main</code>.</p></div></div>
+        <div class="step pop"><span class="ic bg-y">3</span><div><h3>Ask for a season</h3><p>Type the slash command, or ask in plain words ("make it snow until New Year's").</p>
           <div class="cmd"><span class="p">&gt;</span><code>/seasonal-theme christmas --promo "Holiday deal: first month $1" --promo-href /offers --terms "$1 month one, then $49/mo; 12-month commitment; new customers only"</code><button class="copy" type="button">Copy</button></div></div></div>
-        <div class="step"><div class="num disp">04</div><div><h3 class="disp">Preview, then merge</h3><p>Claude scouts the repo, works out the UTC cutoff, installs the components, checks them in a headless browser with a live and a faked future clock, and pushes to its branch. Vercel builds a preview URL for that branch. Check it there, then merge to <code>main</code> to go to production.</p></div></div>
+        <div class="step pop"><span class="ic bg-m">4</span><div><h3>Preview, then merge</h3><p>Claude scouts the repo, works out the UTC cutoff, installs the components, checks them in a headless browser with a live and a faked future clock, and pushes to its branch. Vercel builds a preview URL for that branch. Check it there, then merge to <code>main</code> to go to production.</p></div></div>
       </div>
     </div>
   </section>
 
   <!-- INSTALL -->
-  <section class="s dark" id="install">
+  <section class="s tint" id="install">
+    <span class="cf cir" style="top:60px;right:8%;background:var(--pink)"></span>
+    <span class="cf tri" style="bottom:80px;left:3%;border-bottom-color:var(--yellow)"></span>
     <div class="wrap">
-      <span class="label">Installation</span>
-      <h2 class="disp">Paste.<br>Commit. Merge.</h2>
-      <p class="intro">The skill is a single file, and it has to be <b style="color:#fff">committed in your website repo</b> at <code>.claude/skills/seasonal-theme/SKILL.md</code>. Each cloud session starts from a fresh clone of the repo, so anything that isn't committed is gone in the next session.</p>
+      <span class="kicker" style="--k:var(--yellow)">Installation</span>
+      <h2>Paste one prompt into <span class="hl">your session</span></h2>
+      <p class="intro">The skill is a single file, and it has to be <b>committed in your website repo</b> at <code>.claude/skills/seasonal-theme/SKILL.md</code>. Each cloud session starts from a fresh clone of the repo, so anything that isn't committed is gone in the next session.</p>
 
-      <h3 class="disp" style="color:var(--o)">1 · Paste into your session</h3>
-      <div class="cmd prompt"><code>Install the seasonal-theme Claude Code skill into this repo.
+      <div class="card feat pop" style="padding:28px">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px"><span class="ic bg-p"><svg viewBox="0 0 24 24"><path d="m4 17 6-6-6-6M12 19h8"/></svg></span><h3 style="margin:0">Step 1 · Paste this into your session</h3></div>
+        <div class="cmd prompt"><code>Install the seasonal-theme Claude Code skill into this repo.
 
 Download https://raw.githubusercontent.com/Itzkiro/Raid-Contractor-Marketing-Wesbite-Themes/main/skills/seasonal-theme/SKILL.md
 to .claude/skills/seasonal-theme/SKILL.md. If that host is blocked, run
@@ -328,15 +374,16 @@ in a temp folder and copy skills/seasonal-theme/ into .claude/skills/.
 
 Don't edit the file and don't change anything else. Commit it as
 "Add seasonal-theme Claude Code skill" and push.</code><button class="copy" type="button">Copy</button></div>
-      <p class="note" style="color:rgba(255,255,255,.7)">Under the hood: <code>mkdir -p .claude/skills/seasonal-theme &amp;&amp; curl -fsSL …/SKILL.md -o .claude/skills/seasonal-theme/SKILL.md</code>, then commit and push.</p>
+        <p class="note">Under the hood: <code>mkdir -p .claude/skills/seasonal-theme &amp;&amp; curl -fsSL …/SKILL.md -o .claude/skills/seasonal-theme/SKILL.md</code>, then commit and push.</p>
+      </div>
 
-      <ul class="svc sm" style="margin-top:48px">
-        <li><span class="n">02</span><div><div class="t disp">Merge it to main</div><p>The session pushes to its own <code>claude/…</code> branch. Open a PR (or ask Claude to) and merge it, so every new session starts with the skill. It's a Markdown file under <code>.claude/</code>, so the Vercel build and your live site don't change.</p></div><span class="ar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><path d="M12 19V5M5 12l7-7 7 7"/></svg></span></li>
-        <li><span class="n">03</span><div><div class="t disp">Check it loaded</div><p>Open a <b>new</b> session on the repo and type <code>/</code>. <code>seasonal-theme</code> should be listed. If it isn't, make sure the file is at exactly <code>.claude/skills/seasonal-theme/SKILL.md</code> on the branch the session started from.</p></div><span class="ar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><path d="M12 19V5M5 12l7-7 7 7"/></svg></span></li>
-        <li><span class="n">!!</span><div><div class="t disp">Network access</div><p>The download needs <code>raw.githubusercontent.com</code> or <code>github.com</code>, which the default <i>Trusted</i> network level allows. On a stricter level, add the host under <b>Allowed domains</b> (cloud environment menu → Edit → Network access). <a href="https://code.claude.com/docs/en/cloud-environments#network-access" style="color:var(--o)">Docs</a>.</p></div><span class="ar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><path d="M12 19V5M5 12l7-7 7 7"/></svg></span></li>
-      </ul>
+      <div class="g3" style="margin-top:44px">
+        <div class="card top pop"><span class="ic bg-v"><svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="9" r="3"/><path d="M6 9v6M18 12c0 3-3 4-9 4"/></svg></span><h3>2 · Merge to main</h3><p>The session pushes to its own <code>claude/…</code> branch. Open a PR (or ask Claude to) and merge it, so every new session starts with the skill. It's a Markdown file under <code>.claude/</code>, so the Vercel build and your live site don't change.</p></div>
+        <div class="card top pop"><span class="ic bg-m"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span><h3>3 · Check it loaded</h3><p>Open a <b>new</b> session on the repo and type <code>/</code>. <code>seasonal-theme</code> should be listed. If it isn't, make sure the file is at exactly <code>.claude/skills/seasonal-theme/SKILL.md</code> on the branch the session started from.</p></div>
+        <div class="card top pop"><span class="ic bg-y"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg></span><h3>Network access</h3><p>The download needs <code>raw.githubusercontent.com</code> or <code>github.com</code>, which the default <i>Trusted</i> network level allows. On a stricter level, add the host under <b>Allowed domains</b> (cloud environment menu → Edit → Network access). <a href="https://code.claude.com/docs/en/cloud-environments#network-access">Docs</a>.</p></div>
+      </div>
 
-      <details style="border-color:rgba(255,255,255,.2);margin-top:32px"><summary>Local terminal instead</summary>
+      <details style="margin-top:40px"><summary>Installing from a local terminal instead</summary>
         <p>From the root of the website repo:</p>
         <div class="cmd" style="margin-top:12px"><span class="p">$</span><code>mkdir -p .claude/skills/seasonal-theme &amp;&amp; curl -fsSL https://raw.githubusercontent.com/Itzkiro/Raid-Contractor-Marketing-Wesbite-Themes/main/skills/seasonal-theme/SKILL.md -o .claude/skills/seasonal-theme/SKILL.md</code><button class="copy" type="button">Copy</button></div>
         <p>Then commit and push it. Or use degit: <code>npx degit Itzkiro/Raid-Contractor-Marketing-Wesbite-Themes/skills/seasonal-theme .claude/skills/seasonal-theme</code></p>
@@ -344,20 +391,20 @@ Don't edit the file and don't change anything else. Commit it as
     </div>
   </section>
 
-  <!-- SHIP WITH VERCEL -->
+  <!-- SHIP -->
   <section class="s" id="ship">
     <div class="wrap">
-      <span class="label">Shipping a theme</span>
-      <h2 class="disp">Preview to<br>production.</h2>
-      <div class="table">
+      <span class="kicker" style="--k:var(--mint)">Shipping a theme</span>
+      <h2>From preview to <span class="hl" style="--hl:#A7F3D0">production</span></h2>
+      <div class="table pop">
         <table>
           <thead><tr><th>Step</th><th>Where</th><th>What happens</th></tr></thead>
           <tbody>
-            <tr><td class="mono">01</td><td><b>Claude session</b></td><td><code>/seasonal-theme &lt;season&gt; …</code>: Claude installs the theme, verifies it in a headless browser, commits and pushes to its branch.</td></tr>
-            <tr><td class="mono">02</td><td><b>Vercel preview</b></td><td>Vercel builds the branch. Open the preview link on the PR or in the Vercel dashboard and check the particles, bar and card.</td></tr>
-            <tr><td class="mono">03</td><td><b>GitHub</b></td><td>Merge the PR into <code>main</code>. Vercel deploys to production.</td></tr>
-            <tr><td class="mono">04</td><td><b>Visitors' browsers</b></td><td>On the end date the theme disappears by itself, with no redeploy needed.</td></tr>
-            <tr><td class="mono">05</td><td><b>Claude session</b></td><td>Any time later, <code>/seasonal-theme off</code> removes the code. Merge, and you're done.</td></tr>
+            <tr><td><span class="ic sm bg-v">1</span></td><td><b>Claude session</b></td><td><code>/seasonal-theme &lt;season&gt; …</code>: Claude installs the theme, verifies it in a headless browser, commits and pushes to its branch.</td></tr>
+            <tr><td><span class="ic sm bg-p">2</span></td><td><b>Vercel preview</b></td><td>Vercel builds the branch. Open the preview link on the PR or in the Vercel dashboard and check the particles, bar and card.</td></tr>
+            <tr><td><span class="ic sm bg-y">3</span></td><td><b>GitHub</b></td><td>Merge the PR into <code>main</code>. Vercel deploys to production.</td></tr>
+            <tr><td><span class="ic sm bg-m">4</span></td><td><b>Visitors' browsers</b></td><td>On the end date the theme disappears by itself, with no redeploy needed.</td></tr>
+            <tr><td><span class="ic sm bg-v">5</span></td><td><b>Claude session</b></td><td>Any time later, <code>/seasonal-theme off</code> removes the code. Merge, and you're done.</td></tr>
           </tbody>
         </table>
       </div>
@@ -365,10 +412,10 @@ Don't edit the file and don't change anything else. Commit it as
   </section>
 
   <!-- COMMANDS -->
-  <section class="s" id="commands">
+  <section class="s tint" id="commands">
     <div class="wrap">
-      <span class="label">Commands</span>
-      <h2 class="disp">Every command.<br>Every flag.</h2>
+      <span class="kicker" style="--k:var(--accent)">Commands</span>
+      <h2>Every command and <span class="hl" style="--hl:#DDD6FE">every flag</span></h2>
       <p class="intro">Three commands. Plain words work too: "put up the Christmas theme", "make it snow" and "Valentine's hearts please" are all treated as the command.</p>
       <div class="table">
         <table>
@@ -381,7 +428,7 @@ Don't edit the file and don't change anything else. Commit it as
         </table>
       </div>
 
-      <h3 class="disp" style="margin-top:56px">Options</h3>
+      <h3 style="margin:56px 0 18px">Options</h3>
       <div class="table">
         <table>
           <thead><tr><th>Flag</th><th>Value</th><th>Effect</th></tr></thead>
@@ -399,19 +446,19 @@ Don't edit the file and don't change anything else. Commit it as
         </table>
       </div>
 
-      <h3 class="disp" style="margin-top:56px">Recipes</h3>
+      <h3 style="margin:56px 0 18px">Recipes</h3>
       <div class="g2">
-        <div class="recipe"><span class="k">Just weather, nothing else</span><div class="cmd"><span class="p">&gt;</span><code>/seasonal-theme snow --ends 2027-01-15 --tz America/Chicago</code><button class="copy" type="button">Copy</button></div></div>
-        <div class="recipe"><span class="k">Full Halloween campaign</span><div class="cmd"><span class="p">&gt;</span><code>/seasonal-theme halloween --promo "Spooky-season special: $1 first month" --promo-href /offers --terms "$1 month one, then $49/mo; 12-month commitment; new customers only"</code><button class="copy" type="button">Copy</button></div></div>
-        <div class="recipe"><span class="k">Promo bar only, no particles</span><div class="cmd"><span class="p">&gt;</span><code>/seasonal-theme valentines --promo "Refer a friend, both save $25" --no-weather --no-card</code><button class="copy" type="button">Copy</button></div></div>
-        <div class="recipe"><span class="k">Subtle effect on a busy site</span><div class="cmd"><span class="p">&gt;</span><code>/seasonal-theme autumn --density low --no-bar --no-card</code><button class="copy" type="button">Copy</button></div></div>
-        <div class="recipe"><span class="k">Summer, custom end date</span><div class="cmd"><span class="p">&gt;</span><code>/seasonal-theme summer --ends 2027-09-02 --tz Europe/London --promo "Summer kickoff: $1 first month"</code><button class="copy" type="button">Copy</button></div></div>
-        <div class="recipe"><span class="k">Check, then remove</span><div class="cmd"><span class="p">&gt;</span><code>/seasonal-theme status</code><button class="copy" type="button">Copy</button></div><div class="cmd"><span class="p">&gt;</span><code>/seasonal-theme off</code><button class="copy" type="button">Copy</button></div></div>
+        <div class="recipe"><span class="k"><span class="ic sm bg-v">❄</span>Just weather, nothing else</span><div class="cmd"><span class="p">&gt;</span><code>/seasonal-theme snow --ends 2027-01-15 --tz America/Chicago</code><button class="copy" type="button">Copy</button></div></div>
+        <div class="recipe"><span class="k"><span class="ic sm bg-p">🎃</span>Full Halloween campaign</span><div class="cmd"><span class="p">&gt;</span><code>/seasonal-theme halloween --promo "Spooky-season special: $1 first month" --promo-href /offers --terms "$1 month one, then $49/mo; 12-month commitment; new customers only"</code><button class="copy" type="button">Copy</button></div></div>
+        <div class="recipe"><span class="k"><span class="ic sm bg-y">❤</span>Promo bar only, no particles</span><div class="cmd"><span class="p">&gt;</span><code>/seasonal-theme valentines --promo "Refer a friend, both save $25" --no-weather --no-card</code><button class="copy" type="button">Copy</button></div></div>
+        <div class="recipe"><span class="k"><span class="ic sm bg-m">🍂</span>Subtle effect on a busy site</span><div class="cmd"><span class="p">&gt;</span><code>/seasonal-theme autumn --density low --no-bar --no-card</code><button class="copy" type="button">Copy</button></div></div>
+        <div class="recipe"><span class="k"><span class="ic sm bg-v">☀</span>Summer, custom end date</span><div class="cmd"><span class="p">&gt;</span><code>/seasonal-theme summer --ends 2027-09-02 --tz Europe/London --promo "Summer kickoff: $1 first month"</code><button class="copy" type="button">Copy</button></div></div>
+        <div class="recipe"><span class="k"><span class="ic sm bg-p">?</span>Check, then remove</span><div class="cmd"><span class="p">&gt;</span><code>/seasonal-theme status</code><button class="copy" type="button">Copy</button></div><div class="cmd"><span class="p">&gt;</span><code>/seasonal-theme off</code><button class="copy" type="button">Copy</button></div></div>
       </div>
 
-      <h3 class="disp" style="margin-top:56px">What a session looks like</h3>
+      <h3 style="margin:56px 0 18px">What a session looks like</h3>
       <div class="g2">
-        <div><div class="term"><div class="bar"><span>Session · install</span><span>●</span></div>
+        <div><div class="term"><div class="bar"><i style="background:var(--pink)"></i><i style="background:var(--yellow)"></i><i style="background:var(--mint)"></i><span>session · install</span></div>
 <pre><span class="t-u">&gt; /seasonal-theme christmas --promo "Holiday deal: first month $1"</span>
 <span class="t-u">    --promo-href /offers --terms "$1 month one; 12-month commitment"</span>
 
@@ -432,7 +479,7 @@ Don't edit the file and don't change anything else. Commit it as
   <span class="t-ok">✓</span> faked clock after cutoff: 0 seasonal elements
   <span class="t-ok">✓</span> /lp/* routes clean
 <span class="t-d">● Committed</span> "Add Christmas theme (expires 2026-12-26 ET)"</pre></div><p class="note">Illustrative. File names and paths depend on your repo.</p></div>
-        <div><div class="term"><div class="bar"><span>Session · status / off</span><span>●</span></div>
+        <div><div class="term" style="box-shadow:8px 8px 0 0 var(--pink)"><div class="bar"><i style="background:var(--pink)"></i><i style="background:var(--yellow)"></i><i style="background:var(--mint)"></i><span>session · status / off</span></div>
 <pre><span class="t-u">&gt; /seasonal-theme status</span>
 
   theme      christmas
@@ -454,19 +501,16 @@ Don't edit the file and don't change anything else. Commit it as
   </section>
 
   <!-- SEASONS -->
-  <section class="s dark" id="seasons">
+  <section class="s" id="seasons">
+    <span class="cf sq" style="top:80px;right:6%;background:var(--mint)"></span>
+    <span class="cf ring" style="top:140px;left:2%;border-color:var(--pink)"></span>
     <div class="wrap">
-      <span class="label">Season catalog</span>
-      <h2 class="disp">Ten seasons.<br>Ready to go.</h2>
+      <span class="kicker" style="--k:var(--pink)">Season catalog</span>
+      <h2>Ten seasons, <span class="hl" style="--hl:#FBCFE8">ready to go</span></h2>
       <p class="intro">Every default can be overridden with flags. Click a screenshot to open that season in the live demo. <code>snow</code> and <code>rain</code> are weather-only, so they default to <code>--no-bar --no-card</code>.</p>
       <div class="gallery" id="gallery"></div>
-    </div>
-  </section>
 
-  <section class="s" id="catalog">
-    <div class="wrap">
-      <span class="label">Defaults</span>
-      <h2 class="disp">The catalog.</h2>
+      <h3 style="margin:64px 0 18px">Defaults</h3>
       <div class="table">
         <table>
           <thead><tr><th>Season key</th><th>Particles</th><th>Bar colors (from → via → to)</th><th>Accent</th><th>Default end (local)</th></tr></thead>
@@ -477,16 +521,16 @@ Don't edit the file and don't change anything else. Commit it as
   </section>
 
   <!-- EXPIRY -->
-  <section class="s" id="expiry">
+  <section class="s tint" id="expiry">
     <div class="wrap">
-      <span class="label">How it expires</span>
-      <h2 class="disp">Checked in<br>the browser.</h2>
+      <span class="kicker" style="--k:var(--yellow)">How it expires</span>
+      <h2>The cutoff is checked in <span class="hl">the visitor's browser</span></h2>
       <p class="intro">On a static or SSG site, a server-side date check runs once at build time and never runs again, so the theme would never expire. The skill hardcodes the cutoff as a UTC timestamp and compares it with <code>Date.now()</code> in the browser after mount. When the date passes, every visitor sees your normal site on their next page load, with no redeploy.</p>
-      <div class="cmd" style="margin-bottom:40px"><code>// Nov 1, 00:00 America/New_York (EDT, UTC-4) == 04:00 UTC
+      <div class="cmd" style="margin-bottom:44px"><code>// Nov 1, 00:00 America/New_York (EDT, UTC-4) == 04:00 UTC
 const ENDS_UTC = Date.UTC(2026, 10, 1, 4, 0, 0);</code></div>
       <div class="g2">
-        <figure><span class="tag on">● Before the cutoff</span><div class="shot"><img src="assets/screenshots/season-halloween.png" loading="lazy" width="1280" height="800" alt="Demo site with the Halloween theme live: promo bar and falling emoji."></div><figcaption><code>Date.now() &lt; ENDS_UTC</code>: weather, bar and card render.</figcaption></figure>
-        <figure><span class="tag off">○ After the cutoff</span><div class="shot"><img src="assets/screenshots/expired-halloween.png" loading="lazy" width="1280" height="800" alt="The same demo site after expiry: the plain dark announcement bar is back and nothing is falling."></div><figcaption>Same build, clock faked past the cutoff: the original bar is back and nothing seasonal renders.</figcaption></figure>
+        <figure class="pop"><span class="badge"><span class="ic sm bg-m"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>Before the cutoff</span><div class="shot"><img src="assets/screenshots/season-halloween.png" loading="lazy" width="1280" height="800" alt="Demo site with the Halloween theme live: promo bar and falling emoji."></div><figcaption><code>Date.now() &lt; ENDS_UTC</code>: weather, bar and card render.</figcaption></figure>
+        <figure class="pop"><span class="badge"><span class="ic sm bg-p"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>After the cutoff</span><div class="shot"><img src="assets/screenshots/expired-halloween.png" loading="lazy" width="1280" height="800" alt="The same demo site after expiry: the plain dark announcement bar is back and nothing is falling."></div><figcaption>Same build, clock faked past the cutoff: the original bar is back and nothing seasonal renders.</figcaption></figure>
       </div>
       <p class="note">The "after" screenshot was taken the way the skill verifies an install: by overriding the clock past the cutoff in a headless browser. Try the checkbox in the <a href="demo/?season=halloween&amp;expired=1">demo</a>.</p>
     </div>
@@ -495,46 +539,46 @@ const ENDS_UTC = Date.UTC(2026, 10, 1, 4, 0, 0);</code></div>
   <!-- MOBILE -->
   <section class="s" id="mobile">
     <div class="wrap">
-      <span class="label">Mobile &amp; density</span>
-      <h2 class="disp">Half on<br>phones.</h2>
+      <span class="kicker" style="--k:var(--mint)">Mobile &amp; density</span>
+      <h2>Half the particles <span class="hl" style="--hl:#A7F3D0">on phones</span></h2>
       <p class="intro">Below 640px wide, the particle count is halved. The first screen on a phone is already crowded, and a seasonal effect shouldn't get in the way of a visitor who came to convert.</p>
-      <div class="g3" style="border:0;gap:24px">
-        <figure style="padding:0;border:0"><div class="shot phone"><img src="assets/screenshots/mobile-christmas.png" loading="lazy" width="780" height="1688" alt="Phone-size screenshot of the Christmas theme with ten particles."></div><figcaption>Christmas at 390px: 10 particles.</figcaption></figure>
-        <figure style="padding:0;border:0"><div class="shot"><img src="assets/screenshots/density-low.png" loading="lazy" width="1280" height="800" alt="Autumn theme at low density."></div><figcaption><code>--density low</code>: about 10 on desktop.</figcaption></figure>
-        <figure style="padding:0;border:0"><div class="shot"><img src="assets/screenshots/density-high.png" loading="lazy" width="1280" height="800" alt="Autumn theme at high density."></div><figcaption><code>--density high</code>: about 32 on desktop.</figcaption></figure>
+      <div class="g3" style="align-items:start">
+        <figure class="pop"><div class="shot phone"><img src="assets/screenshots/mobile-christmas.png" loading="lazy" width="780" height="1688" alt="Phone-size screenshot of the Christmas theme with ten particles."></div><figcaption style="text-align:center">Christmas at 390px: 10 particles.</figcaption></figure>
+        <figure class="pop"><div class="shot"><img src="assets/screenshots/density-low.png" loading="lazy" width="1280" height="800" alt="Autumn theme at low density."></div><figcaption><code>--density low</code>: about 10 on desktop.</figcaption></figure>
+        <figure class="pop"><div class="shot"><img src="assets/screenshots/density-high.png" loading="lazy" width="1280" height="800" alt="Autumn theme at high density."></div><figcaption><code>--density high</code>: about 32 on desktop.</figcaption></figure>
       </div>
     </div>
   </section>
 
   <!-- SAFETY -->
-  <section class="s dark" id="safety">
+  <section class="s tint" id="safety">
     <div class="wrap">
-      <span class="label">Why it's safe for production</span>
-      <h2 class="disp">Ten rules.<br>From real incidents.</h2>
+      <span class="kicker" style="--k:var(--accent)">Why it's safe for production</span>
+      <h2>Ten rules that come from <span class="hl" style="--hl:#DDD6FE">real incidents</span></h2>
       <p class="intro">The skill tells Claude to follow all of them on every install. They're why a seasonal theme won't cost you conversions, SEO or a broken page.</p>
-      <ul class="svc sm" id="rules"></ul>
+      <div class="rules" id="rules"></div>
     </div>
   </section>
 
   <!-- FRAMEWORKS -->
   <section class="s" id="frameworks">
     <div class="wrap">
-      <span class="label">Works with</span>
-      <h2 class="disp">React. Next.<br>Plain HTML.</h2>
+      <span class="kicker" style="--k:var(--pink)">Works with</span>
+      <h2>React, Next.js or <span class="hl">plain HTML</span></h2>
       <div class="g3">
-        <div><h4>Next.js on Vercel</h4><p>A <code>"use client"</code> component, <code>components/seasonal-theme.tsx</code>, exports <code>useSeason()</code> and <code>&lt;SeasonalWeather /&gt;</code>. Claude mounts it once in your layout or announcement bar.</p></div>
-        <div><h4>Any React app</h4><p><code>useSeason()</code> branches your bar and gates the offer card. It renders only after mount, so there's no hydration mismatch.</p></div>
-        <div><h4>Static sites</h4><p>For HTML, Astro or 11ty: one deferred <code>&lt;script&gt;</code> with no framework and no build step. <a href="demo/">The live demo</a> runs this exact script.</p></div>
+        <div class="card top pop"><span class="ic bg-v"><svg viewBox="0 0 24 24"><path d="M12 2 2 20h20Z"/></svg></span><h3>Next.js on Vercel</h3><p>A <code>"use client"</code> component, <code>components/seasonal-theme.tsx</code>, exports <code>useSeason()</code> and <code>&lt;SeasonalWeather /&gt;</code>. Claude mounts it once in your layout or announcement bar.</p></div>
+        <div class="card top pop"><span class="ic bg-p"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2"/><ellipse cx="12" cy="12" rx="10" ry="4"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(120 12 12)"/></svg></span><h3>Any React app</h3><p><code>useSeason()</code> branches your bar and gates the offer card. It renders only after mount, so there's no hydration mismatch.</p></div>
+        <div class="card top pop"><span class="ic bg-y"><svg viewBox="0 0 24 24"><path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/></svg></span><h3>Static sites</h3><p>For HTML, Astro or 11ty: one deferred <code>&lt;script&gt;</code> with no framework and no build step. <a href="demo/">The live demo</a> runs this exact script.</p></div>
       </div>
-      <p class="note">Both reference implementations are in <a href="https://github.com/Itzkiro/Raid-Contractor-Marketing-Wesbite-Themes/blob/main/skills/seasonal-theme/SKILL.md">SKILL.md</a>.</p>
+      <p class="note" style="margin-top:22px">Both reference implementations are in <a href="https://github.com/Itzkiro/Raid-Contractor-Marketing-Wesbite-Themes/blob/main/skills/seasonal-theme/SKILL.md">SKILL.md</a>.</p>
     </div>
   </section>
 
   <!-- FAQ -->
-  <section class="s" id="faq">
-    <div class="wrap">
-      <span class="label">FAQ</span>
-      <h2 class="disp">Questions.</h2>
+  <section class="s tint" id="faq">
+    <div class="wrap" style="max-width:880px">
+      <span class="kicker" style="--k:var(--yellow)">FAQ</span>
+      <h2 style="margin-bottom:36px">Questions, <span class="hl">answered</span></h2>
       <details><summary>Do I have to redeploy to turn it off?</summary><p>No. The cutoff is checked in each visitor's browser, so the theme disappears on its own at the end date. Run <code>/seasonal-theme off</code> later if you want the code gone from the repo.</p></details>
       <details><summary>Why commit the skill to the repo?</summary><p>Claude Code cloud sessions start from a fresh clone of your GitHub repo every time. A skill under <code>.claude/skills/</code> in the repo is available in every session. Anything only in a past session's container is gone.</p></details>
       <details><summary>Does the skill file affect my Vercel build?</summary><p>No. It's a Markdown file in <code>.claude/</code>. Your site only changes when you run a <code>/seasonal-theme</code> command and merge what Claude pushes.</p></details>
@@ -545,30 +589,41 @@ const ENDS_UTC = Date.UTC(2026, 10, 1, 4, 0, 0);</code></div>
   </section>
 
   <!-- CTA -->
-  <section class="cta">
-    <h2 class="disp">Make it<br>snow.</h2>
-    <a class="big" href="#install">Install the skill →</a>
-    <p class="sub mono" style="font-size:12px;text-transform:uppercase">or <a href="demo/">open the live demo</a></p>
+  <section class="s" style="padding-top:120px">
+    <div class="wrap">
+      <div class="cta pop">
+        <div class="star" aria-hidden="true"><svg viewBox="0 0 100 100"><path d="M50 3 61 30 90 22 74 47 97 66 68 69 66 98 50 74 34 98 32 69 3 66 26 47 10 22 39 30Z"/></svg><span>Free<br>&amp; MIT</span></div>
+        <h2>Make it snow.</h2>
+        <p>Paste one prompt into your Claude Code session, merge, and your site is ready for every holiday of the year.</p>
+        <div class="ctas" style="justify-content:center">
+          <a class="btn primary" href="#install">Install the skill <span class="dot"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></a>
+          <a class="btn ghost" href="demo/">Open the live demo</a>
+        </div>
+      </div>
+    </div>
   </section>
 </main>
 
 <footer>
-  <span>© 2026 seasonal-theme · MIT · a skill for Claude Code</span>
-  <nav>
-    <a href="https://github.com/Itzkiro/Raid-Contractor-Marketing-Wesbite-Themes">GitHub</a>
-    <a href="https://github.com/Itzkiro/Raid-Contractor-Marketing-Wesbite-Themes/blob/main/skills/seasonal-theme/SKILL.md">SKILL.md</a>
-    <a href="demo/">Demo</a>
-    <a href="https://docs.claude.com/en/docs/claude-code/overview">Claude Code</a>
-  </nav>
+  <div class="wrap">
+    <span>seasonal-theme · MIT licensed · a skill for <a href="https://docs.claude.com/en/docs/claude-code/overview">Claude Code</a></span>
+    <nav>
+      <a href="https://github.com/Itzkiro/Raid-Contractor-Marketing-Wesbite-Themes">GitHub</a>
+      <a href="https://github.com/Itzkiro/Raid-Contractor-Marketing-Wesbite-Themes/blob/main/skills/seasonal-theme/SKILL.md">SKILL.md</a>
+      <a href="demo/">Demo</a>
+    </nav>
+  </div>
 </footer>
 
 <script>
-  // Marquee rows (content duplicated so the -50% loop is seamless)
+  var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // Marquee (content duplicated so the -50% loop is seamless)
   (function () {
-    var a = "Halloween ✦ Christmas ✦ New Year ✦ Valentines ✦ St Patricks ✦ Spring ✦ Summer ✦ Autumn ✦ Snow ✦ Rain ✦ ";
-    var b = "Self-expiring • No redeploy • Pure CSS • Mount-only • Reduced-motion safe • Terms beside the claim • ";
-    function fill(id, t) { var el = document.getElementById(id); for (var i = 0; i < 2; i++) { var s = document.createElement("span"); s.textContent = t + t; el.appendChild(s); } }
-    fill("m1", a); fill("m2", b);
+    var words = ["Halloween", "Christmas", "New Year", "Valentines", "St Patricks", "Spring", "Summer", "Autumn", "Snow", "Rain", "Self-expiring", "No redeploy", "Pure CSS"];
+    var html = words.map(function (w) { return w + "<b>✦</b>"; }).join("");
+    var el = document.getElementById("m1");
+    for (var i = 0; i < 2; i++) { var s = document.createElement("span"); s.innerHTML = html + html; el.appendChild(s); }
   })();
 
   // Catalog (mirrors SKILL.md, which is canonical)
@@ -584,61 +639,74 @@ const ENDS_UTC = Date.UTC(2026, 10, 1, 4, 0, 0);</code></div>
     ["snow",        "❄️ (only)",          null, "—", "configurable"],
     ["rain",        "💧 (only)",          null, "—", "configurable"]
   ];
+  var SHADOWS = ["#8B5CF6", "#F472B6", "#FBBF24", "#34D399"];
   var tb = document.getElementById("catalog-rows"), gal = document.getElementById("gallery");
-  SEASONS.forEach(function (s) {
+  SEASONS.forEach(function (s, i) {
     var tr = document.createElement("tr");
     var sw = s[2] ? '<span class="sw">' + s[2].map(function (c) { return '<i style="background:' + c + '"></i>'; }).join("") + "</span><code>" + s[2].join(" → ") + "</code>" : "keep site bar";
     var acc = s[3] === "—" ? "—" : s[3].split(" / ").map(function (x) { return "<code>" + x.replace("badge ", "") + "</code>"; }).join(" / badge ");
     tr.innerHTML = "<td><code>" + s[0] + "</code></td><td>" + s[1] + "</td><td>" + sw + "</td><td>" + acc + "</td><td>" + s[4] + "</td>";
     tb.appendChild(tr);
     var a = document.createElement("a");
-    a.className = "gi"; a.href = "demo/?season=" + s[0];
-    a.innerHTML = '<div class="im"><img loading="lazy" width="1280" height="800" src="assets/screenshots/season-' + s[0] + '.png" alt="Demo site with the ' + s[0] + ' theme applied"></div>' +
-      '<div class="lb"><b>' + s[0] + "</b><small>" + s[1].replace(" (only)", "") + "</small></div>";
+    a.className = "gi pop"; a.href = "demo/?season=" + s[0];
+    a.style.boxShadow = (innerWidth < 720 ? "4px 4px" : "8px 8px") + " 0 0 " + SHADOWS[i % 4];
+    a.innerHTML = '<img loading="lazy" width="1280" height="800" src="assets/screenshots/season-' + s[0] + '.png" alt="Demo site with the ' + s[0] + ' theme applied">' +
+      '<div class="lb"><b>' + s[0] + "</b><span>" + s[1].replace(" (only)", "") + "</span></div>";
     gal.appendChild(a);
   });
 
-  // Safety rules as brutalist service cards
+  // Safety rules: each check sits inside a coloured circle
   var RULES = [
     ["Client-side UTC gate", "The cutoff is a hardcoded UTC timestamp compared in the browser, so static and SSG builds still expire."],
-    ["Mount-only render", "Server HTML never contains the theme: no hydration mismatch, no SEO or meta churn."],
+    ["Mount-only rendering", "Server HTML never contains the theme: no hydration mismatch, no SEO or meta churn."],
     ["Harmless overlay", "pointer-events: none, fixed and clipped, with a z-index below your modals, cookie banners and sticky CTAs."],
-    ["Reduced motion", "The whole particle field is hidden under prefers-reduced-motion: reduce."],
-    ["Skip checkout pages", "Bare ad-landing and checkout routes stay clean, using your site's existing exclusion helper."],
-    ["Half on phones", "Viewports under 640px get half the particles."],
-    ["Safe storage", "try/catch around all localStorage access. Bare access throws in blocked cross-origin iframes and can take the whole page down."],
-    ["Terms beside claim", "Commitment, exclusions and end date go on the same card as the price headline. No separate fine-print page."],
-    ["Mid-fall first paint", "Negative animation delays mean the particles are already falling on first paint, so visitors don't see an empty sky."],
+    ["Respects reduced motion", "The whole particle field is hidden under prefers-reduced-motion: reduce."],
+    ["Skips checkout pages", "Bare ad-landing and checkout routes stay clean, using your site's existing exclusion helper."],
+    ["Half density on phones", "Viewports under 640px get half the particles."],
+    ["Safe storage access", "try/catch around all localStorage access. Bare access throws in blocked cross-origin iframes and can take the whole page down."],
+    ["Terms beside the claim", "Commitment, exclusions and end date go on the same card as the price headline. No separate fine-print page."],
+    ["Mid-fall on first paint", "Negative animation delays mean the particles are already falling on first paint, so visitors don't see an empty sky."],
     ["Inert after expiry", "Past the end date the code renders nothing, so removing it is cleanup you can do whenever."]
   ];
-  var ARROW = '<span class="ar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><path d="M12 19V5M5 12l7-7 7 7"/></svg></span>';
-  var ul = document.getElementById("rules");
+  var CLS = ["bg-m", "bg-v", "bg-p", "bg-y"];
+  var rules = document.getElementById("rules");
   RULES.forEach(function (r, i) {
-    var li = document.createElement("li");
-    li.innerHTML = '<span class="n">' + String(i + 1).padStart(2, "0") + '</span><div><div class="t disp"></div><p></p></div>' + ARROW;
-    li.querySelector(".t").textContent = r[0]; li.querySelector("p").textContent = r[1];
-    ul.appendChild(li);
+    var d = document.createElement("div");
+    d.className = "rule pop";
+    d.innerHTML = '<span class="ic ' + CLS[i % 4] + '"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span><div><b></b><span></span></div>';
+    d.querySelector("b").textContent = String(i + 1).padStart(2, "0") + " · " + r[0];
+    d.querySelector("div span").textContent = r[1];
+    rules.appendChild(d);
   });
 
   // Copy buttons
   document.querySelectorAll(".copy").forEach(function (b) {
     b.addEventListener("click", function () {
       var text = b.parentElement.querySelector("code").textContent;
-      var done = function () { b.textContent = "Copied"; b.classList.add("ok"); setTimeout(function () { b.textContent = "Copy"; b.classList.remove("ok"); }, 1400); };
+      var done = function () { b.textContent = "Copied!"; b.classList.add("ok"); setTimeout(function () { b.textContent = "Copy"; b.classList.remove("ok"); }, 1400); };
       if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, function () {});
     });
   });
 
+  // Pop-in entrance (scale 0 -> 1 with bounce). Skipped under reduced motion.
+  if (!reduce && "IntersectionObserver" in window) {
+    document.documentElement.classList.add("js-pop");
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) { var t = e.target; t.classList.add("in"); io.unobserve(t); setTimeout(function () { t.classList.remove("pop", "in"); }, 700); } });
+    }, { rootMargin: "0px 0px -8% 0px" });
+    document.querySelectorAll(".pop").forEach(function (el) { io.observe(el); });
+  }
+
   // A light snowfall on the docs page itself, using the skill's own technique.
   (function () {
-    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (reduce) return;
     var N = innerWidth < 640 ? 5 : 10;
     var field = document.createElement("div");
     field.className = "docs-snow"; field.setAttribute("aria-hidden", "true");
     for (var i = 0; i < N; i++) {
       var o = document.createElement("span"), n = document.createElement("span");
       var dur = 12 + Math.random() * 12, delay = -Math.random() * 24;
-      o.style.cssText = "position:absolute;top:0;left:" + Math.random() * 100 + "%;font-size:" + (12 + Math.random() * 10) + "px;opacity:" + (0.45 + Math.random() * 0.35) + ";will-change:transform;animation:szn-fall " + dur + "s linear " + delay + "s infinite";
+      o.style.cssText = "position:absolute;top:0;left:" + Math.random() * 100 + "%;font-size:" + (12 + Math.random() * 10) + "px;opacity:" + (0.35 + Math.random() * 0.3) + ";will-change:transform;animation:szn-fall " + dur + "s linear " + delay + "s infinite";
       n.style.cssText = "display:inline-block;animation:szn-sway " + (4 + Math.random() * 4) + "s ease-in-out " + delay + "s infinite";
       n.textContent = "❄️"; o.appendChild(n); field.appendChild(o);
     }
