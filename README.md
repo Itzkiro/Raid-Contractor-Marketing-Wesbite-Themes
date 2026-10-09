@@ -6,6 +6,8 @@ The expiry date is **hardcoded and checked in the visitor's browser**, so the th
 
 **[📖 Docs site](https://itzkiro.github.io/Raid-Contractor-Marketing-Wesbite-Themes/)** · **[🎮 Live demo](https://itzkiro.github.io/Raid-Contractor-Marketing-Wesbite-Themes/demo/)** · **[📄 SKILL.md](skills/seasonal-theme/SKILL.md)**
 
+> The docs site and live demo links work once GitHub Pages is enabled (see [Hosting the docs site](#hosting-the-docs-site)).
+
 ![Christmas theme on a demo site: emoji falling over the page and a navy-to-green promo bar](docs/assets/screenshots/hero-christmas.png)
 
 ---
@@ -157,16 +159,18 @@ Defaults; all overridable.
 
 ## Screenshots
 
-These are from the [live demo](https://itzkiro.github.io/Raid-Contractor-Marketing-Wesbite-Themes/demo/), a generic site running the skill's vanilla reference script. Click a season to open it in the demo.
+These are from the demo in [`docs/demo/`](docs/demo/index.html), a generic site running the skill's vanilla reference script. Click a screenshot to see it full size.
+
+> **Try the demo yourself:** open `docs/demo/index.html` in a browser (no server needed), or use the [hosted demo](https://itzkiro.github.io/Raid-Contractor-Marketing-Wesbite-Themes/demo/) once GitHub Pages is enabled ([setup](#hosting-the-docs-site)).
 
 ### Every theme
 
 | | | |
 |:-:|:-:|:-:|
-| [![halloween](docs/assets/screenshots/season-halloween.png)](https://itzkiro.github.io/Raid-Contractor-Marketing-Wesbite-Themes/demo/?season=halloween)<br>`halloween` | [![christmas](docs/assets/screenshots/season-christmas.png)](https://itzkiro.github.io/Raid-Contractor-Marketing-Wesbite-Themes/demo/?season=christmas)<br>`christmas` | [![new-year](docs/assets/screenshots/season-new-year.png)](https://itzkiro.github.io/Raid-Contractor-Marketing-Wesbite-Themes/demo/?season=new-year)<br>`new-year` |
-| [![valentines](docs/assets/screenshots/season-valentines.png)](https://itzkiro.github.io/Raid-Contractor-Marketing-Wesbite-Themes/demo/?season=valentines)<br>`valentines` | [![st-patricks](docs/assets/screenshots/season-st-patricks.png)](https://itzkiro.github.io/Raid-Contractor-Marketing-Wesbite-Themes/demo/?season=st-patricks)<br>`st-patricks` | [![spring](docs/assets/screenshots/season-spring.png)](https://itzkiro.github.io/Raid-Contractor-Marketing-Wesbite-Themes/demo/?season=spring)<br>`spring` |
-| [![summer](docs/assets/screenshots/season-summer.png)](https://itzkiro.github.io/Raid-Contractor-Marketing-Wesbite-Themes/demo/?season=summer)<br>`summer` | [![autumn](docs/assets/screenshots/season-autumn.png)](https://itzkiro.github.io/Raid-Contractor-Marketing-Wesbite-Themes/demo/?season=autumn)<br>`autumn` | [![snow](docs/assets/screenshots/season-snow.png)](https://itzkiro.github.io/Raid-Contractor-Marketing-Wesbite-Themes/demo/?season=snow)<br>`snow` |
-| [![rain](docs/assets/screenshots/season-rain.png)](https://itzkiro.github.io/Raid-Contractor-Marketing-Wesbite-Themes/demo/?season=rain)<br>`rain` | | |
+| [![halloween](docs/assets/screenshots/season-halloween.png)](docs/assets/screenshots/season-halloween.png)<br>`halloween` | [![christmas](docs/assets/screenshots/season-christmas.png)](docs/assets/screenshots/season-christmas.png)<br>`christmas` | [![new-year](docs/assets/screenshots/season-new-year.png)](docs/assets/screenshots/season-new-year.png)<br>`new-year` |
+| [![valentines](docs/assets/screenshots/season-valentines.png)](docs/assets/screenshots/season-valentines.png)<br>`valentines` | [![st-patricks](docs/assets/screenshots/season-st-patricks.png)](docs/assets/screenshots/season-st-patricks.png)<br>`st-patricks` | [![spring](docs/assets/screenshots/season-spring.png)](docs/assets/screenshots/season-spring.png)<br>`spring` |
+| [![summer](docs/assets/screenshots/season-summer.png)](docs/assets/screenshots/season-summer.png)<br>`summer` | [![autumn](docs/assets/screenshots/season-autumn.png)](docs/assets/screenshots/season-autumn.png)<br>`autumn` | [![snow](docs/assets/screenshots/season-snow.png)](docs/assets/screenshots/season-snow.png)<br>`snow` |
+| [![rain](docs/assets/screenshots/season-rain.png)](docs/assets/screenshots/season-rain.png)<br>`rain` | | |
 
 ### Offer card with terms beside the claim
 
@@ -216,6 +220,16 @@ skills/seasonal-theme/SKILL.md   ← the skill (copy this into .claude/skills/)
 docs/                            ← GitHub Pages site + live demo + screenshots
 scripts/screenshots.mjs          ← regenerates docs/assets/screenshots
 ```
+
+## Hosting the docs site
+
+The docs site and live demo live in `docs/` and are served by GitHub Pages:
+
+1. Merge to `main`.
+2. Go to **Settings → Pages**. Under **Build and deployment**, choose **Deploy from a branch**, select `main` and `/docs`, then click **Save**.
+3. After a minute or two the site is live at `https://itzkiro.github.io/Raid-Contractor-Marketing-Wesbite-Themes/`.
+
+Until then, the links to the docs site and the hosted demo return 404.
 
 ## License
 
